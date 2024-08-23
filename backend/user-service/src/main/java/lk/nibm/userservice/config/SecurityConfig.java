@@ -46,7 +46,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form.disable()) // Disable default form login
                 .logout(logout -> logout
-                        .logoutUrl("/auth/logout") // Custom logout URL
+                        .logoutUrl("/api/users/logout") // Custom logout URL
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(HttpServletResponse.SC_OK); // Set response status
                             response.getWriter().write("Logged out successfully"); // Custom logout message
