@@ -1,6 +1,6 @@
 # Event Management System
 
-![Event Management System Interface](path/to/your/image.png)
+![Event Management System Interface](misc/images/ui-mockup.jpeg)
 
 ## Overview
 
@@ -52,3 +52,45 @@ The application is divided into the following microservices:
 - **Database**: MySQL
 - **API Design**: RESTful APIs
 - **Other**: Maven
+
+## Project Structure
+
+event-management-system/
+|
+├── backend/                              # Contains all the Spring Boot microservices
+│   ├── user-service/                     # Microservice for user management
+│   │   ├── src/
+│   │   │   ├── main/
+│   │   │   │   ├── java/
+│   │   │   │   │   └── lk/nibm/userservice/    # Java package for User Service
+│   │   │   │   │       ├── controller/         # REST controllers for handling HTTP requests
+│   │   │   │   │       ├── service/            # Business logic and service classes
+│   │   │   │   │       ├── model/              # Entity models representing database tables
+│   │   │   │   │       └── repository/         # Repository interfaces for database operations
+│   │   │   │   └── resources/
+│   │   │   │       ├── application.properties  # Configuration file for Spring Boot
+│   │   │   └── test/
+│   │   │       └── java/
+│   │   │           └── lk/nibm/userservice/    # Unit and integration tests for User Service
+│   │   └── pom.xml                            # Maven build file for User Service
+│   ├── event-service/                         # Microservice for event management
+│   ├── ticket-service/                        # Microservice for ticket management
+│   ├── payment-service/                       # Microservice for payment processing
+│   ├── notification-service/                  # Microservice for sending notifications
+│   └── analytics-service/                     # Microservice for analytics and reporting
+|
+├── frontend/                                  # React frontend application
+│   ├── public/
+│   │   ├── index.html                         # Main HTML file for the React app
+│   │   └── favicon.ico                        # Favicon for the React app
+│   ├── src/
+│   │   ├── components/                        # Reusable UI components (e.g., Navbar, Footer)
+│   │   ├── pages/                             # Pages representing different views (e.g., HomePage, EventPage)
+│   │   ├── services/                          # API service modules for interacting with backend
+│   │   ├── App.js                             # Main application component
+│   │   ├── index.js                           # Entry point for the React application
+│   │   └── styles/                            # CSS or SCSS stylesheets for the application
+│   ├── package.json                           # Project dependencies and scripts for the React app
+│   └── .env                                   # Environment variables for frontend configuration
+|
+└── misc/                                      # Miscellaneous files (e.g., images, SQL scripts)
