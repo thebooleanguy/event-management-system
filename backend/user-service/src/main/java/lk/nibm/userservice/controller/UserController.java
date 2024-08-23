@@ -126,4 +126,48 @@ public class UserController {
         User user = userService.findByEmail(email);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
     }
+
+    /**
+     * Updates the name of a user by their email.
+     *
+     * @param email The email of the user.
+     * @param newName The new name to set for the user.
+     * @return A response indicating success or failure.
+     */
+    @PutMapping("/update-name")
+    public ResponseEntity<String> updateUserName(@RequestParam String email,
+                                                 @RequestParam String newName) {
+        boolean updated = userService.updateUserNameByEmail(email, newName);
+        return updated ? ResponseEntity.ok("User name updated successfully") :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    /**
+     * Updates the role of a user by their email.
+     *
+     * @param email The email of the user.
+     * @param newRole The new role to set for the user.
+     * @return A response indicating success or failure.
+     */
+    @PutMapping("/update-role")
+    public ResponseEntity<String> updateUserRole(@RequestParam String email,
+                                                 @RequestParam User.RoleEnum newRole) {
+        boolean updated = userService.updateUserRoleByEmail(email, newRole);
+        return updated ? ResponseEntity.ok("User role updated successfully") :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    /**
+     * Deletes a user by their email.
+     *
+     * @param email The email of the user to delete.
+     * @return A response indicating success or failure.
+     */
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUserByEmail(@RequestParam String email) {
+        boolean deleted = userService.deleteUserByEmail(email);
+        return deleted ? ResponseEntity.ok("User deleted successfully") :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
 }

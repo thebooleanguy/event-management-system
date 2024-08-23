@@ -59,4 +59,55 @@ public class UserService {
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
+
+    /**
+     * Updates the name of a user by their email.
+     *
+     * @param email The email of the user.
+     * @param newName The new name to set for the user.
+     * @return True if the update was successful, otherwise false.
+     */
+    public boolean updateUserNameByEmail(String email, String newName) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setName(newName);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the role of a user by their email.
+     *
+     * @param email The email of the user.
+     * @param newRole The new role to set for the user.
+     * @return True if the update was successful, otherwise false.
+     */
+    public boolean updateUserRoleByEmail(String email, RoleEnum newRole) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setRole(newRole);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Deletes a user by their email.
+     *
+     * @param email The email of the user to delete.
+     * @return True if the deletion was successful, otherwise false.
+     */
+    public boolean deleteUserByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            userRepository.delete(user);
+            return true;
+        }
+        return false;
+    }
+
+
 }
