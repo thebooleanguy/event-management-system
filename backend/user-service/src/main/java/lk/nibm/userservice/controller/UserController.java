@@ -109,10 +109,22 @@ public class UserController {
      * @param id The ID of the user.
      * @return The user if found, otherwise a not found response.
      */
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Retrieves a user by their email.
+     *
+     * @param email The email of the user.
+     * @return The user if found, otherwise a not found response.
+     */
+    @GetMapping("/email/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        User user = userService.findByEmail(email);
+        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
     }
 }
