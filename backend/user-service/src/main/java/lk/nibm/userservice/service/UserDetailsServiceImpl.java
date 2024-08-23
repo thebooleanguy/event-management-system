@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service to load user-specific data.
@@ -40,16 +39,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
 
-        // Convert user's roles to Spring Security's GrantedAuthority objects
-        List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toList());
+        // Convert user's single role to a Spring Security GrantedAuthority object
+        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().name());
 
-        // Return a Spring Security User with the user's email, password, and authorities
+        // Return a Spring Security User with the user's email, password, and authority
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                authorities
+                List.of(authority)  // Using List.of() to create a singleton list with the single authority
         );
     }
 }

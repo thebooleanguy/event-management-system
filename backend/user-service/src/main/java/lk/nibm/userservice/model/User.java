@@ -5,11 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-import java.util.Set;
-
 /**
  * Represents a user in the system.
- * Each user has a unique email, a name, a password, and a set of roles.
+ * Each user has a unique email, a name, a password, and a role.
  */
 @Entity
 @Table(name = "users")
@@ -32,13 +30,18 @@ public class User {
     private String password;
 
     /**
-     * Roles assigned to the user.
-     * The `FetchType.EAGER` ensures that roles are loaded immediately with the user.
-     * `CascadeType.MERGE` allows updates to the roles to be propagated to the database.
+     * Role assigned to the user.
+     * The role is stored as a string in the database.
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RoleEnum role;
+
+    /**
+     * Represents the roles a user can have.
+     */
+    public enum RoleEnum {
+        USER,
+        EVENT_ORG
+    }
 }
