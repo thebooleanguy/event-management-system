@@ -3,7 +3,6 @@ package lk.nibm.userservice.service;
 import lk.nibm.userservice.model.Role;
 import lk.nibm.userservice.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**

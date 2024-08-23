@@ -23,6 +23,16 @@ CREATE TABLE IF NOT EXISTS user_roles (
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
+-- Sample Population Queries
+-- Insert sample users into the 'users' table
+INSERT INTO users (name, email, password) VALUES 
+('Alice Smith', 'alice.smith@example.com', 'password123'),
+('Bob Johnson', 'bob.johnson@example.com', 'securepass456'),
+('Carol White', 'carol.white@example.com', 'mypassword789'),
+('David Brown', 'david.brown@example.com', 'adminpassword321'),
+('Eve Davis', 'eve.davis@example.com', 'pass1234');
+
+
 -- CREATE TABLE IF NOT EXISTS users (
 --     id BIGINT AUTO_INCREMENT PRIMARY KEY,
 --     name VARCHAR(255) NOT NULL,
