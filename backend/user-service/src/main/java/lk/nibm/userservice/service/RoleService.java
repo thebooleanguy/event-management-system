@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RoleService {
 
-    @Autowired
     private final RoleRepository roleRepository;
 
     /**

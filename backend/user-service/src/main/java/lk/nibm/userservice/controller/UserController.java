@@ -28,9 +28,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final AuthenticationManager authenticationManager;
 
     /**

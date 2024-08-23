@@ -22,11 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
     private final UserRepository userRepository;
-    @Autowired
     private final RoleService roleService;
-    @Autowired
     private final PasswordEncoder passwordEncoder;
 
     /**
