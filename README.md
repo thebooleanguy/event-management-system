@@ -179,6 +179,14 @@ event-management-system/
 4. **Verify the Application**:
    - Open a browser and navigate to `http://localhost:3000` to see the React application in action.
 
+## 📬 API Testing
+
+You can test the API endpoints using the provided Postman collection. 
+
+- **Postman Collection**: [Event Management System Collection](https://api.postman.com/collections/37875992-09aebe1a-c819-4d18-85b2-62cdd8c0f326?access_key=PMAT-01J64CN9CZW2QZESH9ES1HTFC5)
+
+Import this collection into Postman to explore and test the API endpoints for the Event Management System.
+
 ## 🤝 Project Contributors
 
 - [Chiranaka](https://github.com/Chiranaka)
