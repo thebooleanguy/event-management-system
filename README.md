@@ -82,6 +82,7 @@ The application is divided into the following microservices:
 - **Backend**: Spring Boot, Spring Data JPA, Spring Security
 - **Frontend**: React
 - **Database**: MySQL
+- **Architecture**: Microservice Architecture (Spring MVC within each Microservice)
 - **API Design**: RESTful APIs
 - **Other**: Maven
 
