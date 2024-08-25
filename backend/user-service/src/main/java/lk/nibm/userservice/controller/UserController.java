@@ -2,6 +2,7 @@ package lk.nibm.userservice.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lk.nibm.userservice.dto.LoginRequest;
 import lk.nibm.userservice.model.User;
 import lk.nibm.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -43,35 +44,46 @@ public class UserController {
     }
 
     /**
-     * Logs in a user and creates a session.
+     * Endpoint to handle user login.
      *
-     * @param email    The email of the user.
-     * @param password The password of the user.
-     * @param request  The HTTP request for session management.
-     * @return A response with a message and session ID if successful, or an error message.
+     * @param loginRequest contains the user's email and password.
+     * @param request the HttpServletRequest object used to get the HTTP session.
+     * @return ResponseEntity containing login success message and session ID, or error message if authentication fails.
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestParam String email,
-                                                     @RequestParam String password,
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest,
                                                      HttpServletRequest request) {
         try {
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+            // Create an authentication token with the provided email and password.
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
+
+            // Authenticate the user with the provided credentials.
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+            // Store the authentication in the security context.
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            // Create a new HTTP session if one does not already exist.
             HttpSession session = request.getSession(true);
+
+            // Save the security context in the HTTP session.
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
+            // Prepare the response with a success message and session ID.
             Map<String, String> response = new HashMap<>();
             response.put("message", "Login successful");
             response.put("sessionId", session.getId());
 
+            // Return a 200 OK response with the success message and session ID.
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
+            // Handle authentication failure and return a 401 Unauthorized response with an error message.
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Invalid credentials"));
         }
     }
+
 
     /**
      * Checks if the user is logged in.
