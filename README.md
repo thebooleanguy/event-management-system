@@ -20,10 +20,42 @@ The application is divided into the following microservices:
 ## 🌟 Key Features
 
 - **👤 User Service**:
-  - Registration, login, and logout functionality.
-  - Profile management for users.
-  - RESTful endpoints: `/register`, `/login`, `/logout`, `/profile`.
+  - **Register**: `POST /api/users/register`
+    - Request: `User` object
+    - Response: Registered `User` object
   
+  - **Login**: `POST /api/users/login`
+    - Parameters: `email`, `password`
+    - Response: JSON with `message` and `sessionId` or error message
+  
+  - **Check Status**: `GET /api/users/status`
+    - Response: Login status message
+  
+  - **Logout**: `POST /api/users/logout`
+    - Response: Logout success message
+  
+  - **Get User by ID**: `GET /api/users/id/{id}`
+    - Path Variable: `id`
+    - Response: `User` object or `404 Not Found`
+  
+  - **Get User by Email**: `GET /api/users/email/{email}`
+    - Path Variable: `email`
+    - Response: `User` object or `404 Not Found`
+  
+  - **Update User Name**: `PUT /api/users/update-name`
+    - Parameters: `email`, `newName`
+    - Response: Success or `404 Not Found`
+  
+  - **Update User Role**: `PUT /api/users/update-role`
+    - Parameters: `email`, `newRole`
+    - Response: Success or `404 Not Found`
+  
+  - **Delete User**: `DELETE /api/users/delete`
+    - Parameters: `email`
+    - Response: Success or `404 Not Found`
+
+---
+
 - **🎫 Event Service**:
   - CRUD operations for event management.
   - List and detailed view of events.
@@ -50,6 +82,7 @@ The application is divided into the following microservices:
 - **Backend**: Spring Boot, Spring Data JPA, Spring Security
 - **Frontend**: React
 - **Database**: MySQL
+- **Architecture**: Microservice Architecture (Spring MVC within each Microservice)
 - **API Design**: RESTful APIs
 - **Other**: Maven
 
@@ -97,3 +130,68 @@ event-management-system/
 |
 └── misc/                                      # 🗃️ Miscellaneous files (e.g., images, SQL scripts)
 ```
+
+## 🔧 Requirements
+
+- **Backend**: Java 17+ and Maven
+- **Frontend**: Node.js and npm (or yarn)
+
+## 🏗️ Setup Instructions
+
+### Backend (IntelliJ IDEA)
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/YourUsername/event-management-system.git
+   cd event-management-system
+   ```
+
+2. **Import Project into IntelliJ**:
+   - Open IntelliJ IDEA.
+   - Select `File` -> `Open` and choose the root directory of the project.
+   - IntelliJ will automatically detect the Maven project and import all sub-modules.
+
+3. **Run the Application**:
+   - Navigate to the `backend` directory within IntelliJ IDEA.
+   - Open the `Application.java` class (or the main class of your microservice).
+   - Click the `Run` button or use `Shift + F10` to start the application.
+
+4. **Verify the Application**:
+   - Check that the application starts without errors and the required ports are open.
+
+### Frontend (VSCode)
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/YourUsername/event-management-system.git
+   cd event-management-system/frontend
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Run the Application**:
+   ```bash
+   npm start
+   ```
+
+4. **Verify the Application**:
+   - Open a browser and navigate to `http://localhost:3000` to see the React application in action.
+
+## 📬 API Testing
+
+You can test the API endpoints using the provided Postman collection. 
+
+- **Postman Collection**: [Event Management System Collection](https://api.postman.com/collections/37875992-09aebe1a-c819-4d18-85b2-62cdd8c0f326?access_key=PMAT-01J64CN9CZW2QZESH9ES1HTFC5)
+
+Import this collection into Postman to explore and test the API endpoints for the Event Management System.
+
+## 🤝 Project Contributors
+
+- [Chiranaka](https://github.com/Chiranaka)
+- [Kdinekshi](https://github.com/Kdinekshi)
+- [litheetha](https://github.com/litheetha)
+- [sasindu423](https://github.com/sasindu423)
+- [thebooleanguy](https://github.com/thebooleanguy)
