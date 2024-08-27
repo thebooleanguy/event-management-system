@@ -7,23 +7,25 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
+@RequestMapping("/api/events")
 public class EventController {
 
     @Autowired
     private EventService eventService;
 
-    @GetMapping(path="/events")
+    @GetMapping("/find-all")
     public List<Event> findAllEvents(){
         return eventService.getEvents();
     }
-    @GetMapping(path = "/events/{id}")
+    @GetMapping(path = "/find/{id}")
     public Event findEventByID(@PathVariable int id){
 
         return eventService.getEventById(id);
     }
 
-    @GetMapping(path = "/events", params = "name")
+    @GetMapping(path = "/find-by-name", params = "name")
     public List<Event> findEventByName(@RequestParam String name){
         return eventService.findEventByName(name);
     }
@@ -34,20 +36,20 @@ public class EventController {
          return userService.findUserByAge(age);
      }*/
 
-    @PostMapping(path = "/events")
+    @PostMapping(path = "/create")
     public Event creatEvent(@RequestBody Event  event){
         return eventService.createEvent(event);
     }
 
 
-    @PutMapping(path = "/events")
+    @PutMapping(path = "/update")
     public Event updateEvent(@PathVariable  int id, @RequestBody Event event){
 
         return eventService.updateEvent(event);
 
     }
 
-    @DeleteMapping (path = "/events/{id}")
+    @DeleteMapping (path = "/delete/{id}")
     public Event deleteUserByID(@PathVariable int id){
 
         return  eventService.deleteUserById(id);
