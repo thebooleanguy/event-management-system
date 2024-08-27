@@ -29,10 +29,9 @@ public class Event {
     @Column(name="categoryId")
     private  int categoryId;
 
-    public  Event() {
+    public Event(){
 
     }
-
     public int getCategoryId() {
         return categoryId;
     }

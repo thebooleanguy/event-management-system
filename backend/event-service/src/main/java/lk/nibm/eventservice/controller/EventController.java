@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping(name="/events")
 public class EventController {
 
     @Autowired
@@ -24,15 +25,10 @@ public class EventController {
     }
 
     @GetMapping(path = "/events", params = "name")
-    public List<Event> findEventByName(@RequestParam String name){
-        return eventService.findEventByName(name);
+    public List<Event> findEventByTitle(@RequestParam String title){
+        return eventService.findEventByTitle(title);
     }
 
- /*   @GetMapping(path = "/events", params = "age")
-     public List<Event> findEventByAge(@RequestParam int age) {
-
-         return userService.findUserByAge(age);
-     }*/
 
     @PostMapping(path = "/events")
     public Event creatEvent(@RequestBody Event  event){

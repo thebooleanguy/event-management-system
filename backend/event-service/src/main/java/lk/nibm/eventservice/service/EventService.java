@@ -20,15 +20,15 @@ public class EventService {
     public Event  getEventById(int id){
 
         Optional <Event> event =  eventRepository.findById(id);
-        if(event.isPresent()){
+         if(event.isPresent()){
             return event.get();
         }
 
         return null;
     }
-    public List<Event> findEventByName(String name){
+    public List<Event> findEventByTitle(String title){
 
-        return eventRepository.findEventByName(name);
+        return eventRepository.findEventByTitle(title);
     }
 
 
