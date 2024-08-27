@@ -26,19 +26,19 @@ public class Event {
     @Column(name="organizerId")
     private  int organizerId;
 
-    @Column(name="categoryId")
-    private  int categoryId;
+    @Enumerated(EnumType.STRING)
+    private EventCategory category;
 
     public  Event() {
 
     }
 
-    public int getCategoryId() {
-        return categoryId;
+    public EventCategory getCategory() {
+        return category;
     }
 
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(EventCategory category) {
+        this.category = category;
     }
 
     public String getDate() {
@@ -88,4 +88,14 @@ public class Event {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public enum EventCategory {
+        MUSIC,
+        THEATER,
+        CONCERT,
+        SPORT,
+        CONFERENCE,
+        OTHER
+    }
+
 }

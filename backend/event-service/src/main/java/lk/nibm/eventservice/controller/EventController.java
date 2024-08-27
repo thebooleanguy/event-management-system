@@ -15,7 +15,7 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
-    @GetMapping("/find-all")
+    @GetMapping("/findAll")
     public List<Event> findAllEvents(){
         return eventService.getEvents();
     }
@@ -42,7 +42,7 @@ public class EventController {
     }
 
 
-    @PutMapping(path = "/update")
+    @PutMapping(path = "/update/{id}")
     public Event updateEvent(@PathVariable  int id, @RequestBody Event event){
 
         return eventService.updateEvent(event);
