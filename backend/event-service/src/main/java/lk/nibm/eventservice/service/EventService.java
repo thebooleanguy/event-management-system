@@ -26,9 +26,9 @@ public class EventService {
 
         return null;
     }
-    public List<Event> findEventByName(String name){
+    public List<Event> findEventByTitle(String title){
 
-        return eventRepository.findEventByName(name);
+        return eventRepository.findEventByTitle(title);
     }
 
 

@@ -25,9 +25,9 @@ public class EventController {
         return eventService.getEventById(id);
     }
 
-    @GetMapping(path = "/find-by-name", params = "name")
-    public List<Event> findEventByName(@RequestParam String name){
-        return eventService.findEventByName(name);
+    @GetMapping(path = "/findByTitle", params = "title")
+    public List<Event> findEventByTitle(@RequestParam String title){
+        return eventService.findEventByTitle(title);
     }
 
  /*   @GetMapping(path = "/events", params = "age")
