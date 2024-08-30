@@ -31,7 +31,7 @@ public class EventController {
 
 
     @PostMapping(path = "/events")
-    public Event creatEvent(@RequestBody Event  event){
+    public Event creatEvent(@RequestBody Event event){
         return eventService.createEvent(event);
     }
 
