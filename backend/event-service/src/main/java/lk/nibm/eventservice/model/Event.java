@@ -2,6 +2,8 @@ package lk.nibm.eventservice.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name ="events")
 public class Event {
@@ -17,8 +19,8 @@ public class Event {
     @Column(name="description")
     private String description;
 
-    @Column(name=" date")
-    private String date;
+    @Column(name="date")
+    private LocalDate date;
 
     @Column(name="location")
     private String location;
@@ -26,6 +28,7 @@ public class Event {
     @Column(name="organizerId")
     private  int organizerId;
 
+    @Column(name = "category")
     @Enumerated(EnumType.STRING)
     private EventCategory category;
 
@@ -41,11 +44,11 @@ public class Event {
         this.category = category;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

@@ -22,11 +22,10 @@
       {#if $user}
         <span>Welcome {$user.name}</span>
       {/if}
-      <select class="bg-blue-200 text-gray-800 px-4 py-2 rounded-md">
+      <!-- <select class="bg-blue-200 text-gray-800 px-4 py-2 rounded-md">
         <option>All events</option>
-        <!-- Add more options as needed -->
-      </select>
-      <div class="relative">
+      </select> -->
+      <!-- <div class="relative">
         <input 
           type="text" 
           placeholder="search for an event" 
@@ -35,13 +34,13 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-      </div>
-      <a href="/events/create" class="bg-yellow-300 text-gray-800 px-4 py-2 rounded-md hover:bg-yellow-400">
-        Create Event
-      </a>
-      <a href="/events" class="bg-yellow-300 text-gray-800 px-4 py-2 rounded-md hover:bg-yellow-400">
+      </div> -->
+      <!-- <a href="/events/create" class="bg-yellow-300 text-gray-800 px-4 py-2 rounded-md hover:bg-yellow-400">
         My Events
       </a>
+      <a href="/events" class="bg-yellow-300 text-gray-800 px-4 py-2 rounded-md hover:bg-yellow-400">
+        Create Event
+      </a> -->
       {#if $user}
         <a href="/profile" class="p-2 rounded-full bg-gray-700 hover:bg-gray-600">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
