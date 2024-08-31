@@ -1,5 +1,3 @@
-// src/services/eventService.js
-
 const EVENT_API_URL = 'http://localhost:8082/api/events'; // Base URL for event-related endpoints
 
 async function fetchWithAuth(endpoint, options = {}) {
@@ -27,6 +25,10 @@ export const eventService = {
     findEventByTitle: (title) =>
         fetchWithAuth(`/findByTitle?title=${encodeURIComponent(title)}`),
 
+    // Add searchEvents method to search by title and category
+    searchEvents: (title, category) =>
+        fetchWithAuth(`/search?title=${encodeURIComponent(title)}&category=${encodeURIComponent(category)}`),    
+
     createEvent: (eventData) =>
         fetchWithAuth('/create', {
             method: 'POST',
@@ -42,5 +44,8 @@ export const eventService = {
         }),
 
     deleteEvent: (id) =>
-        fetchWithAuth(`/delete/${id}`, { method: 'DELETE' })
+        fetchWithAuth(`/delete/${id}`, { method: 'DELETE' }),
+
+    getCategories: () =>
+        fetchWithAuth('/categories')
 };

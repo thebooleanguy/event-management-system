@@ -10,9 +10,14 @@
     async function handleSubmit() {
         try {
             const response = await userService.login(email, password);
-            user.login(response.user);
-            localStorage.setItem('token', response.token);
-            goto('/');
+            if (response.token) {
+                // Assuming response.token is a JWT
+                user.login({ email, token: response.token });
+                localStorage.setItem('token', response.token);
+                goto('/');
+            } else {
+                error = 'Invalid email or password';
+            }
         } catch (err) {
             error = 'Invalid email or password';
         }

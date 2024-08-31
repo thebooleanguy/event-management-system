@@ -3,6 +3,7 @@ package lk.nibm.ticketservice.controller;
 import lk.nibm.ticketservice.model.Ticket;
 import lk.nibm.ticketservice.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,16 +12,18 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/tickets")
+@RequestMapping("/api/tickets")
 public class TicketController {
 
     @Autowired
     private TicketService ticketService;
 
-    @PostMapping
-    public Ticket bookTickets(@RequestBody Ticket ticket){
-        return ticketService.createTickets(ticket);
-    }
+
+
+//    @PostMapping
+//    public Ticket bookTickets(@RequestBody Ticket ticket){
+//        return ticketService.createTickets(ticket);
+//    }
 
     @GetMapping
     public List<Ticket> findAllEvents(){
@@ -44,10 +47,21 @@ public class TicketController {
         return ResponseEntity.ok(tickets);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> cancelTicket(@PathVariable int id) {
         ticketService.cancelTicket(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping
+    public ResponseEntity<Ticket> bookTicket(@RequestBody Ticket ticketRequest) {
+        try {
+            Ticket newTicket = ticketService.bookTicket(ticketRequest);
+            return ResponseEntity.ok(newTicket);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
 
 }

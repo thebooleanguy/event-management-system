@@ -3,8 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>User Profile - ANYEVENT.LK</title>
+  <title>User Profile</title>
 </svelte:head>
 
-<h1 class="text-3xl font-bold mb-6">User Profile</h1>
 <UserProfile />

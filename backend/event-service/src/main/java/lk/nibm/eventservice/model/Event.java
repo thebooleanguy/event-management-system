@@ -16,7 +16,7 @@ public class Event {
     @Column(name="title")
     private String title;
 
-    @Column(name="description")
+    @Column(name="description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name="date")
@@ -31,6 +31,9 @@ public class Event {
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
     private EventCategory category;
+
+    @Column(name="imageUrl")
+    private String imageUrl;
 
     public  Event() {
 
@@ -90,6 +93,21 @@ public class Event {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    @PrePersist
+    public void setDefaultImageUrl() {
+        if (this.imageUrl == null || this.imageUrl.isEmpty()) {
+            this.imageUrl = "/images/default.jpg";
+        }
     }
 
     public enum EventCategory {

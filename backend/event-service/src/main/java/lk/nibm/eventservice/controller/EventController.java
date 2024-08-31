@@ -3,9 +3,12 @@ package lk.nibm.eventservice.controller;
 import lk.nibm.eventservice.model.Event;
 import lk.nibm.eventservice.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -55,5 +58,32 @@ public class EventController {
         return  eventService.deleteUserById(id);
     }
 
+    /**
+     * Get the list of available categories.
+     *
+     * @return ResponseEntity with list of categories
+     */
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        List<String> categories = eventService.getCategories();
+        return ResponseEntity.ok(categories);
+    }
+
+    @GetMapping("/search")
+    public List<Event> getEvents(
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "category", required = false) String category) {
+        // Convert the category string to EventCategory enum
+        Event.EventCategory eventCategory = null;
+        if (category != null) {
+            try {
+                eventCategory = Event.EventCategory.valueOf(category.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Handle invalid category value (optional)
+                // For example, you might want to return a 400 Bad Request status
+            }
+        }
+        return eventService.searchEvents(title, eventCategory);
+    }
 
 }

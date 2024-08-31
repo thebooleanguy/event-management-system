@@ -5,8 +5,10 @@ import lk.nibm.eventservice.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -54,5 +56,22 @@ public class EventService {
 
         return null;
     }
+
+    public List<Event> searchEvents(String title, Event.EventCategory category) {
+        if (category == null) {
+            // Handle the case where no category is provided
+            return eventRepository.findByTitleContainingIgnoreCase(title);
+        } else {
+            return eventRepository.findByTitleContainingIgnoreCaseAndCategory(title, category);
+        }
+    }
+
+
+    public List<String> getCategories() {
+        return Arrays.stream(Event.EventCategory.values())
+                .map(Enum::name)
+                .collect(Collectors.toList());
+    }
+
 }
 

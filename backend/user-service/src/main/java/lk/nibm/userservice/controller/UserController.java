@@ -4,17 +4,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lk.nibm.userservice.dto.LoginRequest;
 import lk.nibm.userservice.model.User;
+import lk.nibm.userservice.security.JwtUtil;
 import lk.nibm.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -28,60 +31,51 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    /**
-     * Registers a new user.
-     *
-     * @param user The user information.
-     * @return The registered user.
-     */
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
         User registeredUser = userService.registerUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
     }
 
-    /**
-     * Endpoint to handle user login.
-     *
-     * @param loginRequest contains the user's email and password.
-     * @param request the HttpServletRequest object used to get the HTTP session.
-     * @return ResponseEntity containing login success message and session ID, or error message if authentication fails.
-     */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest,
-                                                     HttpServletRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            // Create an authentication token with the provided email and password.
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
+            // Attempt authentication using the provided credentials
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+            );
 
-            // Authenticate the user with the provided credentials.
-            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+            // Load user details
+            UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
 
-            // Store the authentication in the security context.
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // Generate JWT token
+            String jwt = jwtUtil.generateToken(userDetails);
 
-            // Create a new HTTP session if one does not already exist.
-            HttpSession session = request.getSession(true);
-
-            // Save the security context in the HTTP session.
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
-
-            // Prepare the response with a success message and session ID.
+            // Prepare response
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Login successful");
-            response.put("sessionId", session.getId());
+            response.put("token", jwt);
 
-            // Return a 200 OK response with the success message and session ID.
             return ResponseEntity.ok(response);
-        } catch (AuthenticationException e) {
-            // Handle authentication failure and return a 401 Unauthorized response with an error message.
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Invalid credentials"));
+        } catch (BadCredentialsException e) {
+            logger.warn("Invalid credentials: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        } catch (Exception e) {
+            logger.error("An error occurred during login", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
         }
+    }
+
+    @GetMapping("/admin/users")
+    public ResponseEntity<?> getAllUsers() {
+        // This endpoint is an example of a protected admin route
+        // Implement the logic to return all users
+        return ResponseEntity.ok("This would return all users. Only accessible by EVENT_ORG role.");
     }
 
 
@@ -180,6 +174,53 @@ public class UserController {
         boolean deleted = userService.deleteUserByEmail(email);
         return deleted ? ResponseEntity.ok("User deleted successfully") :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    /**
+     * Retrieves the profile of the currently logged-in user.
+     *
+     * @param request The HTTP request to get the current user details.
+     * @return The user profile if found, otherwise a not found response.
+     */
+    @GetMapping("/profile")
+    public ResponseEntity<User> getUserProfile(HttpServletRequest request) {
+        // Get the currently authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+            String email = authentication.getName();
+            User user = userService.findByEmail(email);
+            return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    /**
+     * Updates the profile of the currently logged-in user.
+     *
+     * @param request The HTTP request to get the current user details.
+     * @param updatedUser The user data to update.
+     * @return A response indicating success or failure.
+     */
+    @PutMapping("/profile")
+    public ResponseEntity<String> updateUserProfile(HttpServletRequest request,
+                                                    @RequestBody User updatedUser) {
+        // Get the currently authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+            String email = authentication.getName();
+            User currentUser = userService.findByEmail(email);
+            if (currentUser != null) {
+                // Update user details
+                currentUser.setName(updatedUser.getName());
+                currentUser.setEmail(updatedUser.getEmail()); // Consider if you want to allow email update
+                currentUser.setPassword(updatedUser.getPassword()); // Ensure proper password hashing
+                currentUser.setRole(updatedUser.getRole());
+                userService.updateUser(currentUser);
+                return ResponseEntity.ok("Profile updated successfully");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
 }

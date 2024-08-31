@@ -4,135 +4,55 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Entity
-@Table(name="tickets")
+@Table(name = "tickets")
+@Getter
+@Setter
 public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name=" Id")
-    private int  Id;
+    @Column(name = "id")
+    private int id;
 
-    @Column(name="eventId")
-    private int  eventId;
+    @Column(name = "event_id")
+    private int eventId;
 
-    @Column(name="paymentId")
-    private int  paymentId;
+    @Column(name = "payment_id")
+    private int paymentId;
 
-    @Column(name="eventName")
+    @Column(name = "event_name")
     private String eventName;
 
-    @Column(name="userId")
-    private  int userId;
+    @Column(name = "user_id")
+    private int userId;
 
-    @Column(name="venueName")
+    @Column(name = "venue_name")
     private String venueName;
 
-    @Column(name="seatNumber")
+    @Column(name = "seat_number")
     private int seatNumber;
 
-    @Column(name="totalTicket")
-    private int totalTicket;
+    @Column(name = "total_tickets")
+    private int totalTickets;
 
-    @Column(name="totalPrice")
+    @Column(name = "total_price")
     private double totalPrice;
 
-    @Column(name="bookingDate")
-    private  String bookingDate;
+    @Column(name = "booking_date")
+    private String bookingDate;
 
-    @Column(name="eventTime")
-    private  String eventTime;
+    @Column(name = "event_time")
+    private String eventTime;
 
-    public Ticket(){
-
+    public Ticket() {
+        // Default constructor
     }
 
-    public String getBookingDate() {
-        return bookingDate;
-    }
-
-    public void setBookingDate(String bookingDate) {
-        this.bookingDate = bookingDate;
-    }
-
-    public int getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(int eventId) {
-        this.eventId = eventId;
-    }
-
-    public String getEventName() {
-        return eventName;
-    }
-
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
-    }
-
-    public  String getEventTime() {
-        return eventTime;
-    }
-
-    public void setEventTime( String eventTime) {
-        this.eventTime = eventTime;
-    }
-
-    public int getId() {
-        return Id;
-    }
-
-    public void setId(int id) {
-        Id = id;
-    }
-
-    public int getPaymentId() {
-        return paymentId;
-    }
-
-    public void setPaymentId(int paymentId) {
-        this.paymentId = paymentId;
-    }
-
-    public int getSeatNumber() {
-        return seatNumber;
-    }
-
-    public void setSeatNumber(int seatNumber) {
-        this.seatNumber = seatNumber;
-    }
-
-    public double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    public int getTotalTicket() {
-        return totalTicket;
-    }
-
-    public void setTotalTicket(int totalTicket) {
-        this.totalTicket = totalTicket;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public String getVenueName() {
-        return venueName;
-    }
-
-    public void setVenueName(String venueName) {
-        this.venueName = venueName;
+    @Override
+    public String toString() {
+        return String.format(
+                "Ticket[id=%d, eventId=%d, paymentId=%d, eventName='%s', userId=%d, venueName='%s', seatNumber=%d, totalTickets=%d, totalPrice=%.2f, bookingDate='%s', eventTime='%s']",
+                id, eventId, paymentId, eventName, userId, venueName, seatNumber, totalTickets, totalPrice, bookingDate, eventTime);
     }
 }

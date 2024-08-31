@@ -4,69 +4,62 @@ import lk.nibm.userservice.model.User;
 import lk.nibm.userservice.model.User.RoleEnum;
 import lk.nibm.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Optional;
 
 /**
  * Service for managing user-related operations including registration and authentication.
  */
-@Transactional
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Registers a new user with encoded password and assigned role.
-     *
-     * @param user The user information to register.
-     * @return The registered user.
-     */
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        logger.debug("Attempting to load user by email: {}", email);
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            logger.warn("User not found with email: {}", email);
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        }
+        logger.debug("User found: {}", user.getEmail());
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
+    }
+
     public User registerUser(User user) {
         // Encode password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // Ensure role is not null; assign default role if none provided
+        // Set default role if not provided
         if (user.getRole() == null) {
-            user.setRole(RoleEnum.USER); // Default role if none provided
+            user.setRole(RoleEnum.USER);
         }
-
-        // Save user
+        logger.info("Registering new user: {}", user.getEmail());
         return userRepository.save(user);
     }
 
-    /**
-     * Finds a user by email.
-     *
-     * @param email The email of the user to find.
-     * @return The found user.
-     */
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    /**
-     * Finds a user by ID.
-     *
-     * @param id The ID of the user to find.
-     * @return An Optional containing the user if found, or empty if not.
-     */
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
 
-    /**
-     * Updates the name of a user by their email.
-     *
-     * @param email The email of the user.
-     * @param newName The new name to set for the user.
-     * @return True if the update was successful, otherwise false.
-     */
     public boolean updateUserNameByEmail(String email, String newName) {
         User user = userRepository.findByEmail(email);
         if (user != null) {
@@ -77,13 +70,6 @@ public class UserService {
         return false;
     }
 
-    /**
-     * Updates the role of a user by their email.
-     *
-     * @param email The email of the user.
-     * @param newRole The new role to set for the user.
-     * @return True if the update was successful, otherwise false.
-     */
     public boolean updateUserRoleByEmail(String email, RoleEnum newRole) {
         User user = userRepository.findByEmail(email);
         if (user != null) {
@@ -94,12 +80,6 @@ public class UserService {
         return false;
     }
 
-    /**
-     * Deletes a user by their email.
-     *
-     * @param email The email of the user to delete.
-     * @return True if the deletion was successful, otherwise false.
-     */
     public boolean deleteUserByEmail(String email) {
         User user = userRepository.findByEmail(email);
         if (user != null) {
@@ -109,5 +89,7 @@ public class UserService {
         return false;
     }
 
-
+    public void updateUser(User user) {
+        userRepository.save(user);
+    }
 }
