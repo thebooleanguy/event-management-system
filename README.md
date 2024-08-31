@@ -19,7 +19,7 @@ The application is divided into the following microservices:
 
 ## 🌟 Key Features
 
-- **👤 User Service**:
+- **👤 User Service** (Port 8081):
   - **Register**: `POST /api/users/register`
     - Request: `User` object
     - Response: Registered `User` object
@@ -56,31 +56,31 @@ The application is divided into the following microservices:
 
 ---
 
-- **🎫 Event Service**:
+- **🎫 Event Service** (Port 8082):
   - CRUD operations for event management.
   - List and detailed view of events.
   - RESTful endpoints: `/events`, `/events/{id}`.
   
-- **🛒 Ticket Service**:
+- **🛒 Ticket Service** (Port 8083):
   - Booking, viewing, and cancellation of tickets.
   - RESTful endpoints: `/tickets`, `/tickets/{id}`, `/tickets/user/{userId}`.
   
-- **💳 Payment Service**:
+- **💳 Payment Service** (Port 8084):
   - Processes payments for ticket bookings.
   - RESTful endpoints: `/payments`, `/payments/user/{userId}`, `/payments/ticket/{ticketId}`.
   
-- **🔔 Notification Service**:
+- **🔔 Notification Service** (Port 8085):
   - Sends notifications related to bookings, cancellations, and updates.
   - RESTful endpoints: `/notifications`, `/notifications/user/{userId}`, `/notifications/{id}`.
   
-- **📊 Analytics Service**:
+- **📊 Analytics Service** (Port 8086):
   - Tracks and analyzes user interactions and sales metrics.
   - RESTful endpoints: `/analytics/user/{userId}`, `/analytics/event/{eventId}`, `/analytics/ticket/{ticketId}`.
 
 ## 💻 Technologies Used
 
 - **Backend**: Spring Boot, Spring Data JPA, Spring Security
-- **Frontend**: React
+- **Frontend**: SvelteKit, Tailwind CSS
 - **Database**: MySQL
 - **Architecture**: Microservice Architecture (Spring MVC within each Microservice)
 - **API Design**: RESTful APIs
@@ -114,21 +114,21 @@ event-management-system/
 │   ├── notification-service/                  # 🔔 Microservice for sending notifications
 │   └── analytics-service/                     # 📊 Microservice for analytics and reporting
 |
-├── frontend/                                  # 🌐 React frontend application
-│   ├── public/
-│   │   ├── index.html                         # 📄 Main HTML file for the React app
-│   │   └── favicon.ico                        # 🔖 Favicon for the React app
+├── frontend/                                  # 🌐 SvelteKit frontend application
+│   ├── static/
+│   │   ├── favicon.ico                        # 🔖 Favicon for the SvelteKit app
 │   ├── src/
-│   │   ├── components/                        # 🧩 Reusable UI components (e.g., Navbar, Footer)
-│   │   ├── pages/                             # 📑 Pages representing different views (e.g., HomePage, EventPage)
+│   │   ├── lib/                               # 📂 Reusable UI components and stores
+│   │   ├── routes/                            # 🛤️ Pages and endpoints for different views
 │   │   ├── services/                          # 🛠️ API service modules for interacting with backend
-│   │   ├── App.js                             # 🏠 Main application component
-│   │   ├── index.js                           # 🚀 Entry point for the React application
-│   │   └── styles/                            # 🎨 CSS or SCSS stylesheets for the application
-│   ├── package.json                           # 📦 Project dependencies and scripts for the React app
+│   │   ├── app.html                           # 🏠 Main HTML template for SvelteKit
+│   │   ├── hooks.server.js                    # 🔄 Server-side hooks for handling requests
+│   │   ├── index.js                           # 🚀 Entry point for the SvelteKit application
+│   │   └── styles/                            # 🎨 Tailwind CSS stylesheets for the application
+│   ├── package.json                           # 📦 Project dependencies and scripts for the SvelteKit app
 │   └── .env                                   # 🌍 Environment variables for frontend configuration
 |
-└── misc/                                      # 🗃️ Miscellaneous files (e.g., images, SQL scripts)
+└── misc/                                      # 🗃️ Miscellaneous files (e.g., images, documentation)
 ```
 
 ## 🔧 Requirements
@@ -174,11 +174,11 @@ event-management-system/
 
 3. **Run the Application**:
    ```bash
-   npm start
+   npm run dev
    ```
 
 4. **Verify the Application**:
-   - Open a browser and navigate to `http://localhost:3000` to see the React application in action.
+   - Open a browser and navigate to `http://localhost:5173` to see the SvelteKit application in action.
 
 ## 📬 API Testing
 
