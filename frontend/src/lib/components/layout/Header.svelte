@@ -1,11 +1,11 @@
 <script>
   import { user } from '$lib/stores/userStore';
-  import { api } from '$lib/services/api';
+  import { userService } from '$lib/services/userService';
   import { goto } from '$app/navigation';
 
   async function handleLogout() {
     try {
-      await api.logout();
+      await userService.logout();
       user.logout();
       localStorage.removeItem('token');
       goto('/login');

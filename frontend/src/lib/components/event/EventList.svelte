@@ -1,13 +1,13 @@
 <script>
   import { onMount } from 'svelte';
-  import { api } from '$lib/services/api';
+  import { eventService } from '$lib/services/eventService';
 
   let events = [];
   let error = '';
 
   onMount(async () => {
     try {
-      events = await api.getAllEvents();
+      events = await eventService.getAllEvents();
     } catch (err) {
       error = 'Failed to load events';
     }

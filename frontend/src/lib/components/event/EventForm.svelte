@@ -1,5 +1,5 @@
 <script>
-  import { api } from '$lib/services/api';
+  import { eventService } from '$lib/services/eventService';
 
   export let event = {
     title: '',
@@ -15,9 +15,9 @@
   async function handleSubmit() {
     try {
       if (event.id) {
-        await api.updateEvent(event.id, event);
+        await eventService.updateEvent(event.id, event);
       } else {
-        await api.createEvent(event);
+        await eventService.createEvent(event);
       }
       onSubmit();
     } catch (err) {
