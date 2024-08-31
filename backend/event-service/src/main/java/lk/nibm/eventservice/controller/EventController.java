@@ -7,43 +7,49 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
-@RequestMapping(name="/events")
+@RequestMapping("/api/events")
 public class EventController {
 
     @Autowired
     private EventService eventService;
 
-    @GetMapping(path="/events")
+    @GetMapping("/findAll")
     public List<Event> findAllEvents(){
         return eventService.getEvents();
     }
-    @GetMapping(path = "/events/{id}")
+    @GetMapping(path = "/find/{id}")
     public Event findEventByID(@PathVariable int id){
 
         return eventService.getEventById(id);
     }
 
-    @GetMapping(path = "/events", params = "name")
+    @GetMapping(path = "/findByTitle", params = "title")
     public List<Event> findEventByTitle(@RequestParam String title){
         return eventService.findEventByTitle(title);
     }
 
+ /*   @GetMapping(path = "/events", params = "age")
+     public List<Event> findEventByAge(@RequestParam int age) {
 
-    @PostMapping(path = "/events")
-    public Event creatEvent(@RequestBody Event event){
+         return userService.findUserByAge(age);
+     }*/
+
+    @PostMapping(path = "/create")
+    public Event creatEvent(@RequestBody Event  event){
         return eventService.createEvent(event);
     }
 
 
-    @PutMapping(path = "/events")
+    @PutMapping(path = "/update/{id}")
     public Event updateEvent(@PathVariable  int id, @RequestBody Event event){
 
         return eventService.updateEvent(event);
 
     }
 
-    @DeleteMapping (path = "/events/{id}")
+    @DeleteMapping (path = "/delete/{id}")
     public Event deleteUserByID(@PathVariable int id){
 
         return  eventService.deleteUserById(id);

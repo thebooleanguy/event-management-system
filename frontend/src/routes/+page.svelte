@@ -18,15 +18,19 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gray-100">
-  <Header {username} />
+  <!-- <Header {username} /> -->
   
   <main class="container mx-auto px-4 py-8">
     <div class="mb-6">
       <h2 class="text-2xl font-semibold mb-2">Welcome {username}</h2>
       <div class="flex space-x-4">
         <SearchBar />
-        <button class="bg-yellow-300 px-4 py-2 rounded-md hover:bg-yellow-400">Create Event</button>
-        <button class="bg-yellow-300 px-4 py-2 rounded-md hover:bg-yellow-400">My Events</button>
+        <a href="/events" class="bg-yellow-300 text-gray-800 px-4 py-2 rounded-md hover:bg-yellow-400">
+        My Events
+      </a>
+      <a href="/events/create" class="bg-yellow-300 text-gray-800 px-4 py-2 rounded-md hover:bg-yellow-400">
+        Create Event
+      </a>
       </div>
     </div>
 

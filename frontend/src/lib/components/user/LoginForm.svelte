@@ -1,5 +1,5 @@
 <script>
-    import { api } from '$lib/services/api';
+    import { userService } from '$lib/services/userService';
     import { user } from '$lib/stores/userStore';
     import { goto } from '$app/navigation';
 
@@ -9,7 +9,7 @@
 
     async function handleSubmit() {
         try {
-            const response = await api.login(email, password);
+            const response = await userService.login(email, password);
             user.login(response.user);
             localStorage.setItem('token', response.token);
             goto('/');
