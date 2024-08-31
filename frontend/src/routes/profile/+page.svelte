@@ -1,11 +1,10 @@
 <script>
-    import UserProfile from '$lib/components/user/UserProfile.svelte';
+  import UserProfile from '$lib/components/user/UserProfile.svelte';
 </script>
 
 <svelte:head>
-    <title>User Profile - ANYEVENT.LK</title>
+  <title>User Profile - ANYEVENT.LK</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8">
-    <UserProfile />
-</div>
+<h1 class="text-3xl font-bold mb-6">User Profile</h1>
+<UserProfile />
