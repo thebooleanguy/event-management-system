@@ -1,51 +1,54 @@
 const EVENT_API_URL = 'http://localhost:8082/api/events'; // Base URL for event-related endpoints
 
 async function fetchWithAuth(endpoint, options = {}) {
-    const token = localStorage.getItem('token');
-    if (token) {
-        options.headers = {
-            ...options.headers,
-            'Authorization': `Bearer ${token}`
-        };
-    }
-    const response = await fetch(`${EVENT_API_URL}${endpoint}`, options);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
+	const token = localStorage.getItem('token');
+	if (token) {
+		options.headers = {
+			...options.headers,
+			Authorization: `Bearer ${token}`
+		};
+	}
+	const response = await fetch(`${EVENT_API_URL}${endpoint}`, options);
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+	return response.json();
 }
 
 export const eventService = {
-    getAllEvents: () =>
-        fetchWithAuth('/findAll'),
+	getAllEvents: () => fetchWithAuth('/findAll'),
 
-    getEventById: (id) =>
-        fetchWithAuth(`/find/${id}`),
+	getEventById: (id) => fetchWithAuth(`/find/${id}`),
 
-    findEventByTitle: (title) =>
-        fetchWithAuth(`/findByTitle?title=${encodeURIComponent(title)}`),
+	findEventByTitle: (title) => fetchWithAuth(`/findByTitle?title=${encodeURIComponent(title)}`),
 
-    // Add searchEvents method to search by title and category
-    searchEvents: (title, category) =>
-        fetchWithAuth(`/search?title=${encodeURIComponent(title)}&category=${encodeURIComponent(category)}`),    
+	// Add searchEvents method to search by title and category
+	searchEvents: (title, category) =>
+		fetchWithAuth(
+			`/search?title=${encodeURIComponent(title)}&category=${encodeURIComponent(category)}`
+		),
 
-    createEvent: (eventData) =>
-        fetchWithAuth('/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(eventData)
-        }),
+	createEvent: (eventData, organizerId) => {
+		const eventWithOrganizerId = {
+			...eventData,
+			organizerId: organizerId || null
+		};
 
-    updateEvent: (id, eventData) =>
-        fetchWithAuth(`/update/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(eventData)
-        }),
+		return fetchWithAuth('/create', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(eventWithOrganizerId)
+		});
+	},
 
-    deleteEvent: (id) =>
-        fetchWithAuth(`/delete/${id}`, { method: 'DELETE' }),
+	updateEvent: (id, eventData) =>
+		fetchWithAuth(`/update/${id}`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(eventData)
+		}),
 
-    getCategories: () =>
-        fetchWithAuth('/categories')
+	deleteEvent: (id) => fetchWithAuth(`/delete/${id}`, { method: 'DELETE' }),
+
+	getCategories: () => fetchWithAuth('/categories')
 };

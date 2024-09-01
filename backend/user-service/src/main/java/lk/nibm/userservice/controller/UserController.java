@@ -57,9 +57,13 @@ public class UserController {
             // Generate JWT token
             String jwt = jwtUtil.generateToken(userDetails);
 
+            // Retrieve user entity to include user details in the response
+            User user = userService.findByEmail(loginRequest.getEmail());
+
             // Prepare response
-            Map<String, String> response = new HashMap<>();
+            Map<String, Object> response = new HashMap<>();
             response.put("token", jwt);
+            response.put("user", user); // Include user details in the response
 
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
@@ -70,6 +74,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
         }
     }
+
 
     @GetMapping("/admin/users")
     public ResponseEntity<?> getAllUsers() {
