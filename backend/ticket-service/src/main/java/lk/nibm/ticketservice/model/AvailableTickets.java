@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "available_tickets")
 @Getter
@@ -17,6 +19,9 @@ public class AvailableTickets {
 
     @Column(name = "available_tickets")
     private int availableTickets;
+
+    @Column(name = "price", nullable = false) // New field for the unit price of a ticket
+    private BigDecimal price;
 
     public AvailableTickets() {
         // Default constructor

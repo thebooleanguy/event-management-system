@@ -1,5 +1,6 @@
 package lk.nibm.ticketservice.controller;
 
+import lk.nibm.ticketservice.model.AvailableTickets;
 import lk.nibm.ticketservice.model.Ticket;
 import lk.nibm.ticketservice.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,31 +19,19 @@ public class TicketController {
     @Autowired
     private TicketService ticketService;
 
-
-
-//    @PostMapping
-//    public Ticket bookTickets(@RequestBody Ticket ticket){
-//        return ticketService.createTickets(ticket);
-//    }
-
     @GetMapping
-    public List<Ticket> findAllTickets(){
+    public List<Ticket> findAllTickets() {
         return ticketService.getAllTickets();
     }
 
-    @GetMapping(path = "/{id}")
-    public Ticket findTicketByID(@PathVariable int id){
-
-        Optional<Ticket> ticket =  ticketService.getTicketById(id);
-        if(ticket.isPresent()){
-            return ticket.get();
-        }
-
-        return null;
+    @GetMapping("/{id}")
+    public ResponseEntity<Ticket> findTicketByID(@PathVariable int id) {
+        Optional<Ticket> ticket = ticketService.getTicketById(id);
+        return ticket.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Ticket>> getTicketsByUser(@PathVariable  int userId) {
+    public ResponseEntity<List<Ticket>> getTicketsByUser(@PathVariable int userId) {
         List<Ticket> tickets = ticketService.getTicketsByUser(userId);
         return ResponseEntity.ok(tickets);
     }
@@ -53,7 +42,7 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping
+    @PostMapping("/book")
     public ResponseEntity<Ticket> bookTicket(@RequestBody Ticket ticketRequest) {
         try {
             Ticket newTicket = ticketService.bookTicket(ticketRequest);
@@ -85,5 +74,35 @@ public class TicketController {
         }
     }
 
+    @GetMapping("/unit-price/{eventId}")
+    public ResponseEntity<BigDecimal> getUnitPrice(@PathVariable int eventId) {
+        try {
+            BigDecimal unitPrice = ticketService.getUnitPrice(eventId);
+            return ResponseEntity.ok(unitPrice);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
+    @PutMapping("/unit-price/{eventId}")
+    public ResponseEntity<Void> setUnitPrice(
+            @PathVariable int eventId,
+            @RequestParam BigDecimal unitPrice) {
+        try {
+            ticketService.setUnitPrice(eventId, unitPrice);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @PostMapping("/available")
+    public ResponseEntity<AvailableTickets> createAvailableTickets(@RequestBody AvailableTickets availableTickets) {
+        try {
+            AvailableTickets newAvailableTickets = ticketService.createAvailableTickets(availableTickets);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newAvailableTickets);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
 }

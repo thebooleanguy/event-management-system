@@ -1,8 +1,13 @@
 package lk.nibm.ticketservice.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "tickets")
@@ -15,44 +20,32 @@ public class Ticket {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "event_id")
+    @Column(name = "event_id", nullable = false)
+    @NotNull
     private int eventId;
 
     @Column(name = "payment_id")
     private int paymentId;
 
-    @Column(name = "event_name")
-    private String eventName;
-
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
+    @NotNull
     private int userId;
 
-    @Column(name = "venue_name")
-    private String venueName;
-
-    @Column(name = "seat_number")
-    private int seatNumber;
-
-    @Column(name = "total_tickets")
+    @Column(name = "total_tickets", nullable = false)
+    @NotNull
+    @Min(1)
     private int totalTickets;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
+    @NotNull
     private double totalPrice;
 
-    @Column(name = "booking_date")
-    private String bookingDate;
-
-    @Column(name = "event_time")
-    private String eventTime;
+    @Column(name = "booking_date", nullable = false)
+    @NotNull
+    private LocalDate bookingDate;
 
     public Ticket() {
-        // Default constructor
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "Ticket[id=%d, eventId=%d, paymentId=%d, eventName='%s', userId=%d, venueName='%s', seatNumber=%d, totalTickets=%d, totalPrice=%.2f, bookingDate='%s', eventTime='%s']",
-                id, eventId, paymentId, eventName, userId, venueName, seatNumber, totalTickets, totalPrice, bookingDate, eventTime);
+        // Initialize bookingDate to the current date
+        this.bookingDate = LocalDate.now();
     }
 }
