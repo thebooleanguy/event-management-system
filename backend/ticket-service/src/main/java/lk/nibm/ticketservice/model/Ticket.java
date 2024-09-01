@@ -36,7 +36,7 @@ public class Ticket {
     @Column(name = "total_tickets")
     private int totalTickets;
 
-    @Column(name = "total_price")
+    @Column(name = "price")
     private double totalPrice;
 
     @Column(name = "booking_date")

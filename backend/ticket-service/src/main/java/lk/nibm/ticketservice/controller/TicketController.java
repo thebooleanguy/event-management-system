@@ -26,7 +26,7 @@ public class TicketController {
 //    }
 
     @GetMapping
-    public List<Ticket> findAllEvents(){
+    public List<Ticket> findAllTickets(){
         return ticketService.getAllTickets();
     }
 
@@ -60,6 +60,28 @@ public class TicketController {
             return ResponseEntity.ok(newTicket);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @GetMapping("/available/{eventId}")
+    public ResponseEntity<Integer> getAvailableTickets(@PathVariable int eventId) {
+        try {
+            int availableTickets = ticketService.getAvailableTickets(eventId);
+            return ResponseEntity.ok(availableTickets);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @PutMapping("/available/{eventId}")
+    public ResponseEntity<Void> setAvailableTickets(
+            @PathVariable int eventId,
+            @RequestParam int availableTickets) {
+        try {
+            ticketService.setAvailableTickets(eventId, availableTickets);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 

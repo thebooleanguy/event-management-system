@@ -1,14 +1,16 @@
 package lk.nibm.ticketservice.service;
 
+import lk.nibm.ticketservice.model.AvailableTickets;
 import lk.nibm.ticketservice.model.Ticket;
+import lk.nibm.ticketservice.repository.AvailableTicketsRepository;
 import lk.nibm.ticketservice.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
 
 import java.util.List;
-import java.util.Map;
+
 import java.util.Optional;
 
 @Service
@@ -16,9 +18,10 @@ public class TicketService {
 
     @Autowired
     private TicketRepository ticketRepository;
-
     @Autowired
-    private RestTemplate restTemplate;
+    private AvailableTicketsRepository availableTicketsRepository;
+
+
 
 //    public Ticket createTickets(Ticket ticket){
 //        return ticketRepository.save(ticket);
@@ -42,33 +45,45 @@ public class TicketService {
     }
 
     public Ticket bookTicket(Ticket ticketRequest) {
-        // Fetch basic event details
-        String eventUrl = "http://localhost:8082/events/" + ticketRequest.getEventId();
-        ResponseEntity<Map> eventResponse = restTemplate.getForEntity(eventUrl, Map.class);
+        // Validate input
+        if (ticketRequest.getEventId() == 0 || ticketRequest.getUserId() == 0) {
+            throw new RuntimeException("Event ID and User ID must be provided");
+        }
 
-        // Extract data you need from the response
-        Map<String, Object> eventData = eventResponse.getBody();
-        if (eventData == null) {
+        // Fetch available tickets for the event
+        AvailableTickets availableTickets = availableTicketsRepository.findById(ticketRequest.getEventId()).orElse(null);
+        if (availableTickets == null) {
             throw new RuntimeException("Event not found");
         }
-        String eventTitle = (String) eventData.get("title");
 
-        // Check if tickets are available (example logic, adjust as necessary)
-        Integer availableTickets = (Integer) eventData.get("availableTickets");
-        if (availableTickets == null || availableTickets <= 0) {
-            throw new RuntimeException("No tickets available");
+        if (availableTickets.getAvailableTickets() < ticketRequest.getTotalTickets()) {
+            throw new RuntimeException("Not enough tickets available");
         }
 
-        // Create and save the ticket
-        Ticket newTicket = new Ticket();
-        newTicket.setEventId(ticketRequest.getEventId());
-        newTicket.setUserId(ticketRequest.getUserId());
-        newTicket.setSeatNumber(ticketRequest.getSeatNumber());
-        newTicket.setTotalTickets(ticketRequest.getTotalTickets());
-        newTicket.setTotalPrice(ticketRequest.getTotalPrice());
-        newTicket.setBookingDate(ticketRequest.getBookingDate());
-        newTicket.setEventName(eventTitle);
+        // Reduce available tickets
+        availableTickets.setAvailableTickets(availableTickets.getAvailableTickets() - ticketRequest.getTotalTickets());
+        availableTicketsRepository.save(availableTickets); // Save updated available tickets
 
-        return ticketRepository.save(newTicket);
+        // Save the ticket
+        ticketRequest.setEventName(""); // Set event name as required or fetch from other sources
+        return ticketRepository.save(ticketRequest);
+    }
+
+    public int getAvailableTickets(int eventId) {
+        AvailableTickets availableTickets = availableTicketsRepository.findById(eventId).orElse(null);
+        if (availableTickets == null) {
+            throw new RuntimeException("Event not found");
+        }
+        return availableTickets.getAvailableTickets();
+    }
+
+    public void setAvailableTickets(int eventId, int availableTickets) {
+        AvailableTickets eventTickets = availableTicketsRepository.findById(eventId).orElse(null);
+        if (eventTickets == null) {
+            eventTickets = new AvailableTickets();
+            eventTickets.setEventId(eventId);
+        }
+        eventTickets.setAvailableTickets(availableTickets);
+        availableTicketsRepository.save(eventTickets);
     }
 }
