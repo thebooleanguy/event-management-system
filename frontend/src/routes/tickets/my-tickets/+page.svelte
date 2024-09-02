@@ -1,6 +1,5 @@
-<!-- src/routes/my-tickets.svelte -->
 <script>
-	import TicketList from '$lib/components/ticket/TicketList.svelte';
+	import UserTickets from '$lib/components/ticket/UserTickets.svelte';
 </script>
 
-<TicketList />
+<UserTickets />
