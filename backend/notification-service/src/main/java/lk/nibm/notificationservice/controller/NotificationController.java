@@ -28,7 +28,7 @@ public class NotificationController {
      * @param notification the notification object.
      * @return the saved notification.
      */
-    @PostMapping
+    @PostMapping("/send")
     public ResponseEntity<Notification> sendNotification(@RequestBody Notification notification) {
         Notification savedNotification = notificationService.sendNotification(notification);
         return ResponseEntity.ok(savedNotification);
@@ -40,7 +40,7 @@ public class NotificationController {
      * @param userId the ID of the user.
      * @return list of notifications.
      */
-    @GetMapping
+    @GetMapping("/user")
     public ResponseEntity<List<Notification>> getNotificationsForUser(@RequestParam Long userId) {
         List<Notification> notifications = notificationService.getNotificationsForUser(userId);
         return ResponseEntity.ok(notifications);
@@ -57,6 +57,22 @@ public class NotificationController {
         Notification notification = notificationService.getNotificationById(id);
         if (notification != null) {
             return ResponseEntity.ok(notification);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Endpoint to mark a notification as read.
+     *
+     * @param id the ID of the notification to mark as read.
+     * @return the updated notification if found, 404 otherwise.
+     */
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<Notification> markNotificationAsRead(@PathVariable Long id) {
+        Notification updatedNotification = notificationService.markNotificationAsRead(id);
+        if (updatedNotification != null) {
+            return ResponseEntity.ok(updatedNotification);
         } else {
             return ResponseEntity.notFound().build();
         }

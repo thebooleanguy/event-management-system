@@ -33,4 +33,11 @@ public class Notification {
 
     @Column(nullable = false)
     private Boolean readStatus;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.date == null) {
+            this.date = new Date(); // Set current date and time if not set
+        }
+    }
 }

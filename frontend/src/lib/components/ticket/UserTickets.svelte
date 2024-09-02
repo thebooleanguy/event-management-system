@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { ticketService } from '$lib/services/ticketService';
+	import { eventService } from '$lib/services/eventService';
 	import { userService } from '$lib/services/userService';
 	import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
@@ -14,6 +15,19 @@
 		try {
 			userId = await userService.getUserId();
 			userTickets = await ticketService.getTicketsByUser(userId);
+
+			// Fetch event titles for the tickets
+			userTickets = await Promise.all(
+				userTickets.map(async (ticket) => {
+					try {
+						const event = await eventService.getEventById(ticket.eventId);
+						return { ...ticket, eventTitle: event.title }; // Change 'eventName' to 'eventTitle'
+					} catch (err) {
+						console.error('Error fetching event:', err);
+						return ticket; // Return ticket without eventTitle if there's an error
+					}
+				})
+			);
 		} catch (err) {
 			error = 'Failed to fetch user tickets';
 			console.error(err);
@@ -47,8 +61,8 @@
 		<table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
 			<thead class="bg-gray-100">
 				<tr>
-					<th class="py-3 px-6 text-left">Event Name</th>
-					<th class="py-3 px-6 text-left">Seat Number</th>
+					<th class="py-3 px-6 text-left">Event Title</th>
+					<!-- <th class="py-3 px-6 text-left">Seat Number</th> -->
 					<th class="py-3 px-6 text-left">Total Tickets</th>
 					<th class="py-3 px-6 text-left">Total Price</th>
 					<th class="py-3 px-6 text-center">Action</th>
@@ -57,8 +71,8 @@
 			<tbody>
 				{#each userTickets as ticket (ticket.id)}
 					<tr class="border-b">
-						<td class="py-4 px-6">{ticket.eventName}</td>
-						<td class="py-4 px-6">{ticket.seatNumber}</td>
+						<td class="py-4 px-6">{ticket.eventTitle}</td>
+						<!-- <td class="py-4 px-6">{ticket.seatNumber}</td> -->
 						<td class="py-4 px-6">{ticket.totalTickets}</td>
 						<td class="py-4 px-6">{ticket.totalPrice}</td>
 						<td class="py-4 px-6 text-center">

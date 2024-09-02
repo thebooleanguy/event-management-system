@@ -29,7 +29,7 @@ async function fetchWithAuth(endpoint, options = {}) {
 }
 
 export const ticketService = {
-	getAllTickets: () => fetchWithAuth('/'),
+	getAllTickets: () => fetchWithAuth('/all'),
 
 	getTicketById: (id) => fetchWithAuth(`/${id}`),
 

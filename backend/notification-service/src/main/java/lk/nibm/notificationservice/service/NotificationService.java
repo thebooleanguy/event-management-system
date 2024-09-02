@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service class for handling notification-related operations.
@@ -51,5 +52,21 @@ public class NotificationService {
      */
     public Notification getNotificationById(Long id) {
         return notificationRepository.findById(id).orElse(null);
+    }
+
+    /**
+     * Mark a notification as read.
+     *
+     * @param id the ID of the notification to mark as read.
+     * @return the updated notification if found, null otherwise.
+     */
+    public Notification markNotificationAsRead(Long id) {
+        Optional<Notification> optionalNotification = notificationRepository.findById(id);
+        if (optionalNotification.isPresent()) {
+            Notification notification = optionalNotification.get();
+            notification.setReadStatus(true);
+            return notificationRepository.save(notification);
+        }
+        return null;
     }
 }

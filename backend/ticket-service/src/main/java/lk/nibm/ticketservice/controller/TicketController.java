@@ -19,7 +19,7 @@ public class TicketController {
     @Autowired
     private TicketService ticketService;
 
-    @GetMapping
+    @GetMapping("/all")
     public List<Ticket> findAllTickets() {
         return ticketService.getAllTickets();
     }
