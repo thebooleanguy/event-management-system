@@ -64,11 +64,9 @@
 	<div class="space-y-4 p-4">
 		{#each notifications as notification}
 			<div class="p-4 bg-white rounded-lg shadow-md">
-				<h3 class="text-lg font-semibold">{notification.title}</h3>
-				<p class="text-gray-600">{notification.content}</p>
-				<p class="text-sm text-gray-500">
-					Received: {new Date(notification.date).toLocaleString()}
-				</p>
+				<h3 class="text-lg font-semibold">{notification.content}</h3>
+				<p class="text-gray-600">Received: {new Date(notification.date).toLocaleString()}</p>
+				<!-- <p class="text-sm text-gray-500"></p> -->
 				{#if !notification.readStatus}
 					<button
 						on:click={() => markAsRead(notification.id)}
