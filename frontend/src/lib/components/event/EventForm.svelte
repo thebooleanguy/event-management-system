@@ -1,6 +1,7 @@
 <script>
 	import { eventService } from '$lib/services/eventService';
 	import { userService } from '$lib/services/userService'; // Import userService to get user info
+	import { goto } from '$app/navigation'; // Import goto for navigation
 
 	export let event = {
 		title: '',
@@ -29,12 +30,17 @@
 			const organizerId = await getCurrentUserId();
 			const eventData = { ...event };
 
+			let newEventId;
 			if (event.id) {
 				await eventService.updateEvent(event.id, eventData);
+				newEventId = event.id;
 			} else {
-				await eventService.createEvent(eventData, organizerId);
+				const createdEvent = await eventService.createEvent(eventData, organizerId);
+				newEventId = createdEvent.id; // Assuming the response contains the new event ID
 			}
-			onSubmit();
+
+			// Redirect to TicketSettings with the event ID
+			goto(`/tickets/ticket-settings/${newEventId}`);
 		} catch (err) {
 			error = 'Failed to save event';
 			console.error(err);
