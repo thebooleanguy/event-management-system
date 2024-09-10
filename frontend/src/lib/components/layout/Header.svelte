@@ -3,11 +3,16 @@
 	import { user } from '$lib/stores/userStore';
 	import { userService } from '$lib/services/userService';
 	import { goto } from '$app/navigation';
-	import { faUser, faSignOutAlt, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faUser,
+		faSignOutAlt,
+		faSignInAlt,
+		faBell,
+		faTicketAlt
+	} from '@fortawesome/free-solid-svg-icons'; // Import new icons
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 
 	let isLoggedIn = false;
-	let unsubscribe;
 
 	// Subscribe to user store
 	$: {
@@ -44,12 +49,31 @@
 		<a href="/" class="text-2xl font-bold">ANYEVENT.LK</a>
 		<div class="flex items-center space-x-4">
 			{#if isLoggedIn}
+				<!-- User Profile Button -->
 				<a
 					href="/users/profile"
 					class="bg-[#1E40AF] hover:bg-[#1E3A8A] p-2 rounded-full flex items-center justify-center"
 				>
 					<FontAwesomeIcon icon={faUser} class="text-[#FFFFFF] text-lg" />
 				</a>
+
+				<!-- Notifications Button -->
+				<a
+					href="/notifications"
+					class="bg-[#1E40AF] hover:bg-[#1E3A8A] p-2 rounded-full flex items-center justify-center"
+				>
+					<FontAwesomeIcon icon={faBell} class="text-[#FFFFFF] text-lg" />
+				</a>
+
+				<!-- My Tickets Button -->
+				<a
+					href="/tickets/my-tickets"
+					class="bg-[#1E40AF] hover:bg-[#1E3A8A] p-2 rounded-full flex items-center justify-center"
+				>
+					<FontAwesomeIcon icon={faTicketAlt} class="text-[#FFFFFF] text-lg" />
+				</a>
+
+				<!-- Logout Button -->
 				<button
 					on:click={handleLogout}
 					class="bg-red-600 text-white p-2 rounded-full flex items-center justify-center hover:bg-red-700"
