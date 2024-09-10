@@ -1,11 +1,13 @@
 package lk.nibm.ticketservice.service;
 
-import lk.nibm.ticketservice.model.AvailableTickets;
 import lk.nibm.ticketservice.model.Ticket;
-import lk.nibm.ticketservice.repository.AvailableTicketsRepository;
 import lk.nibm.ticketservice.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,7 +20,13 @@ public class TicketService {
     private TicketRepository ticketRepository;
 
     @Autowired
-    private AvailableTicketsRepository availableTicketsRepository;
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private DiscoveryClient discoveryClient;
+
+    @Value("${event.service.name}")
+    private String eventServiceName;
 
     public List<Ticket> getAllTickets() {
         return ticketRepository.findAll();
@@ -42,66 +50,66 @@ public class TicketService {
             throw new RuntimeException("Event ID and User ID must be provided");
         }
 
-        // Fetch available tickets and unit price for the event
-        AvailableTickets availableTickets = availableTicketsRepository.findById(ticketRequest.getEventId()).orElse(null);
-        if (availableTickets == null) {
+        // Fetch available tickets and unit price from the event-service
+        String eventServiceUrl = discoveryClient.getInstances(eventServiceName)
+                .stream()
+                .findFirst()
+                .map(instance -> instance.getUri().toString())
+                .orElseThrow(() -> new RuntimeException("Event service not found"));
+
+        ResponseEntity<EventDTO> response = restTemplate.getForEntity(
+                String.format("%s/api/events/%d", eventServiceUrl, ticketRequest.getEventId()),
+                EventDTO.class
+        );
+        EventDTO event = response.getBody();
+
+        if (event == null) {
             throw new RuntimeException("Event not found");
         }
 
-        if (availableTickets.getAvailableTickets() < ticketRequest.getTotalTickets()) {
+        if (event.getAvailableTickets() < ticketRequest.getTotalTickets()) {
             throw new RuntimeException("Not enough tickets available");
         }
 
         // Calculate total price
-        BigDecimal unitPrice = availableTickets.getPrice();
+        BigDecimal unitPrice = event.getPrice();
         BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(ticketRequest.getTotalTickets()));
         ticketRequest.setTotalPrice(totalPrice.doubleValue());
-
-        // Reduce available tickets
-        availableTickets.setAvailableTickets(availableTickets.getAvailableTickets() - ticketRequest.getTotalTickets());
-        availableTicketsRepository.save(availableTickets); // Save updated available tickets
 
         // Save the ticket
         return ticketRepository.save(ticketRequest);
     }
 
-    public int getAvailableTickets(int eventId) {
-        AvailableTickets availableTickets = availableTicketsRepository.findById(eventId).orElse(null);
-        if (availableTickets == null) {
-            throw new RuntimeException("Event not found");
-        }
-        return availableTickets.getAvailableTickets();
-    }
+    // Define a DTO for the response from the event-service
+    private static class EventDTO {
+        private int eventId;
+        private int availableTickets;
+        private BigDecimal price;
 
-    public void setAvailableTickets(int eventId, int availableTickets) {
-        AvailableTickets eventTickets = availableTicketsRepository.findById(eventId).orElse(null);
-        if (eventTickets == null) {
-            eventTickets = new AvailableTickets();
-            eventTickets.setEventId(eventId);
-        }
-        eventTickets.setAvailableTickets(availableTickets);
-        availableTicketsRepository.save(eventTickets);
-    }
+        // Getters and setters
 
-    public BigDecimal getUnitPrice(int eventId) {
-        AvailableTickets availableTickets = availableTicketsRepository.findById(eventId).orElse(null);
-        if (availableTickets == null) {
-            throw new RuntimeException("Event not found");
+        public int getEventId() {
+            return eventId;
         }
-        return availableTickets.getPrice();
-    }
 
-    public void setUnitPrice(int eventId, BigDecimal unitPrice) {
-        AvailableTickets eventTickets = availableTicketsRepository.findById(eventId).orElse(null);
-        if (eventTickets == null) {
-            eventTickets = new AvailableTickets();
-            eventTickets.setEventId(eventId);
+        public void setEventId(int eventId) {
+            this.eventId = eventId;
         }
-        eventTickets.setPrice(unitPrice);
-        availableTicketsRepository.save(eventTickets);
-    }
 
-    public AvailableTickets createAvailableTickets(AvailableTickets availableTickets) {
-        return availableTicketsRepository.save(availableTickets);
+        public int getAvailableTickets() {
+            return availableTickets;
+        }
+
+        public void setAvailableTickets(int availableTickets) {
+            this.availableTickets = availableTickets;
+        }
+
+        public BigDecimal getPrice() {
+            return price;
+        }
+
+        public void setPrice(BigDecimal price) {
+            this.price = price;
+        }
     }
 }

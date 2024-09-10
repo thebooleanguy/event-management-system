@@ -1,62 +1,51 @@
-const TICKET_API_URL = 'http://localhost:8083/api/tickets'; // Base URL for ticket-related endpoints
+import axios from 'axios';
 
-async function fetchWithAuth(endpoint, options = {}) {
-	let token = '';
-	if (typeof window !== 'undefined' && window.localStorage) {
-		token = localStorage.getItem('token');
-	}
-	const headers = new Headers(options.headers || {});
-	if (token) {
-		headers.set('Authorization', 'Bearer ' + token);
-	}
-	const response = await fetch(`${TICKET_API_URL}${endpoint}`, {
-		...options,
-		headers
-	});
+const TICKET_API_URL = 'http://localhost:8083/api/tickets/'; // Base URL for ticket-related endpoints
 
-	if (response.ok) {
-		if (response.headers.get('Content-Type')?.includes('application/json')) {
-			return response.json();
+// Create an axios instance with default configurations
+const apiClient = axios.create({
+	baseURL: TICKET_API_URL,
+	headers: {
+		'Content-Type': 'application/json'
+	}
+});
+
+// Add an interceptor to include the Authorization header
+apiClient.interceptors.request.use(
+	(config) => {
+		const token = localStorage.getItem('token');
+		if (token) {
+			config.headers.Authorization = `Bearer ${token}`;
 		}
-		return; // Return nothing if no content
-	} else if (response.status === 403) {
-		throw new Error('Forbidden: You do not have permission to access this resource.');
-	} else {
-		const errorText = await response.text();
-		console.error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-		throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+		return config;
+	},
+	(error) => {
+		return Promise.reject(error);
 	}
-}
+);
 
 export const ticketService = {
-	getAllTickets: () => fetchWithAuth('/all'),
+	getAllTickets: () => apiClient.get('/all').then((response) => response.data),
 
-	getTicketById: (id) => fetchWithAuth(`/${id}`),
+	getTicketById: (id) => apiClient.get(`/${id}`).then((response) => response.data),
 
-	getTicketsByUser: (userId) => fetchWithAuth(`/user/${userId}`),
+	getTicketsByUser: (userId) => apiClient.get(`/user/${userId}`).then((response) => response.data),
 
-	cancelTicket: (id) => fetchWithAuth(`/delete/${id}`, { method: 'DELETE' }),
+	cancelTicket: (id) => apiClient.delete(`/delete/${id}`),
 
-	bookTicket: (ticketData) =>
-		fetchWithAuth('/book', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(ticketData)
-		}),
+	bookTicket: (ticketData) => apiClient.post('/book', ticketData).then((response) => response.data),
 
-	getAvailableTickets: (eventId) => fetchWithAuth(`/available/${eventId}`),
+	getAvailableTickets: (eventId) =>
+		apiClient.get(`/available-tickets/${eventId}`).then((response) => response.data),
 
 	setAvailableTickets: (eventId, availableTickets) =>
-		fetchWithAuth(`/available/${eventId}?availableTickets=${availableTickets}`, {
-			method: 'PUT'
-		}),
+		apiClient.put(`/available-tickets/${eventId}`, null, { params: { availableTickets } }),
 
-	getUnitPrice: (eventId) => fetchWithAuth(`/unit-price/${eventId}`),
+	getUnitPrice: (eventId) =>
+		apiClient.get(`/unit-price/${eventId}`).then((response) => response.data),
 
 	setUnitPrice: (eventId, unitPrice) =>
-		fetchWithAuth(`/unit-price/${eventId}?unitPrice=${unitPrice}`, {
-			method: 'PUT'
-		}),
+		apiClient.put(`/unit-price/${eventId}`, null, { params: { unitPrice } }),
 
 	getTicketData: async (eventId) => {
 		const availableTickets = await ticketService.getAvailableTickets(eventId);

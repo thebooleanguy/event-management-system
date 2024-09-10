@@ -21,10 +21,10 @@
 				userTickets.map(async (ticket) => {
 					try {
 						const event = await eventService.getEventById(ticket.eventId);
-						return { ...ticket, eventTitle: event.title }; // Change 'eventName' to 'eventTitle'
+						return { ...ticket, eventTitle: event.title };
 					} catch (err) {
 						console.error('Error fetching event:', err);
-						return ticket; // Return ticket without eventTitle if there's an error
+						return ticket;
 					}
 				})
 			);
@@ -58,34 +58,90 @@
 	{:else if userTickets.length === 0}
 		<p class="text-gray-600">No tickets found.</p>
 	{:else}
-		<table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
-			<thead class="bg-gray-100">
-				<tr>
-					<th class="py-3 px-6 text-left">Event Title</th>
-					<!-- <th class="py-3 px-6 text-left">Seat Number</th> -->
-					<th class="py-3 px-6 text-left">Total Tickets</th>
-					<th class="py-3 px-6 text-left">Total Price</th>
-					<th class="py-3 px-6 text-center">Action</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each userTickets as ticket (ticket.id)}
-					<tr class="border-b">
-						<td class="py-4 px-6">{ticket.eventTitle}</td>
-						<!-- <td class="py-4 px-6">{ticket.seatNumber}</td> -->
-						<td class="py-4 px-6">{ticket.totalTickets}</td>
-						<td class="py-4 px-6">{ticket.totalPrice}</td>
-						<td class="py-4 px-6 text-center">
-							<button
-								class="text-red-600 hover:text-red-800 focus:outline-none"
-								on:click={() => cancelTicket(ticket.id)}
-							>
-								<FontAwesomeIcon icon={faTrashAlt} />
-							</button>
-						</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
+		<div class="space-y-4">
+			{#each userTickets as ticket (ticket.id)}
+				<div class="relative ticket-card">
+					<div class="ticket-info">
+						<div class="ticket-title">{ticket.eventTitle}</div>
+						<div class="ticket-details">Total Tickets: {ticket.totalTickets}</div>
+						<div class="ticket-details">Total Price: ${ticket.totalPrice}</div>
+					</div>
+					<div class="ticket-action">
+						<button on:click={() => cancelTicket(ticket.id)}>
+							<FontAwesomeIcon icon={faTrashAlt} class="text-lg mr-2" /> Cancel
+						</button>
+					</div>
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
+
+<style>
+	.ticket-card {
+		background: linear-gradient(135deg, #f0f0f0, #ffffff);
+		border: 2px dashed #d1d5db;
+		border-radius: 12px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		padding: 16px;
+		margin-bottom: 16px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.ticket-info {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.ticket-title {
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #1f2937;
+	}
+
+	.ticket-details {
+		color: #6b7280;
+		font-size: 0.875rem;
+	}
+
+	.ticket-action {
+		text-align: center;
+	}
+
+	.ticket-action button {
+		background-color: #f87171;
+		color: white;
+		padding: 8px 16px;
+		border: none;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: background-color 0.3s;
+	}
+
+	.ticket-action button:hover {
+		background-color: #ef4444;
+	}
+
+	.ticket-card::before,
+	.ticket-card::after {
+		content: '';
+		width: 20px;
+		height: 20px;
+		background: white;
+		border-radius: 50%;
+		border: 2px dashed #d1d5db;
+		position: absolute;
+	}
+
+	.ticket-card::before {
+		top: -10px;
+		left: -10px;
+	}
+
+	.ticket-card::after {
+		bottom: -10px;
+		right: -10px;
+	}
+</style>

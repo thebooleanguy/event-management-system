@@ -10,14 +10,24 @@ cleanup() {
     kill $notification_service_pid
     # kill $payment_service_pid
     # kill $analytics_service_pid
+    kill $eureka_server_pid
     exit 0
 }
 
 # Trap Ctrl+C (SIGINT) to call cleanup function
 trap cleanup SIGINT
 
+cd backend/common
+mvn install
+sleep 2
+
+cd ../eureka-server
+mvn spring-boot:run &
+eureka_server_pid=$!
+sleep 2
+
 # Start each microservice and capture their PIDs
-cd backend/user-service
+cd ../user-service
 mvn spring-boot:run &
 user_service_pid=$!
 

@@ -2,6 +2,7 @@ package lk.nibm.eventservice.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -35,8 +36,23 @@ public class Event {
     @Column(name="imageUrl")
     private String imageUrl;
 
+    @Column(name = "available_tickets")
+    private int availableTickets;
+
+    @Column(name = "ticket_price")
+    private BigDecimal ticketPrice;
+
     public  Event() {
 
+    }
+
+    public enum EventCategory {
+        MUSIC,
+        THEATER,
+        CONCERT,
+        SPORT,
+        CONFERENCE,
+        OTHER
     }
 
     public EventCategory getCategory() {
@@ -65,6 +81,22 @@ public class Event {
 
     public int getId() {
         return id;
+    }
+
+    public int getAvailableTickets() {
+        return availableTickets;
+    }
+
+    public void setAvailableTickets(int availableTickets) {
+        this.availableTickets = availableTickets;
+    }
+
+    public BigDecimal getTicketPrice() {
+        return ticketPrice;
+    }
+
+    public void setTicketPrice(BigDecimal ticketPrice) {
+        this.ticketPrice = ticketPrice;
     }
 
     public void setId(int id) {
@@ -103,20 +135,19 @@ public class Event {
         this.imageUrl = imageUrl;
     }
 
+
     @PrePersist
-    public void setDefaultImageUrl() {
+    public void setDefaults() {
         if (this.imageUrl == null || this.imageUrl.isEmpty()) {
             this.imageUrl = "/images/default.jpg";
         }
-    }
 
-    public enum EventCategory {
-        MUSIC,
-        THEATER,
-        CONCERT,
-        SPORT,
-        CONFERENCE,
-        OTHER
+        if (availableTickets == 0) {
+            this.availableTickets = 1; // Default to 1
+        }
+        if (ticketPrice == null) {
+            this.ticketPrice = BigDecimal.ONE; // Default to 1
+        }
     }
 
 }

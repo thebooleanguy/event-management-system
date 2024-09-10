@@ -6,63 +6,59 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 @RestController
-@RequestMapping("/api/events")
+@RequestMapping("/api/events/")
 public class EventController {
 
     @Autowired
     private EventService eventService;
 
-    @GetMapping("/findAll")
-    public List<Event> findAllEvents(){
+    @GetMapping
+    public List<Event> findAllEvents() {
         return eventService.getEvents();
     }
-    @GetMapping(path = "/find/{id}")
-    public Event findEventByID(@PathVariable int id){
 
-        return eventService.getEventById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<Event> findEventById(@PathVariable int id) {
+        Event event = eventService.getEventById(id);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(event);
     }
 
-    @GetMapping(path = "/findByTitle", params = "title")
-    public List<Event> findEventByTitle(@RequestParam String title){
+    @GetMapping(params = "title")
+    public List<Event> findEventByTitle(@RequestParam String title) {
         return eventService.findEventByTitle(title);
     }
 
- /*   @GetMapping(path = "/events", params = "age")
-     public List<Event> findEventByAge(@RequestParam int age) {
-
-         return userService.findUserByAge(age);
-     }*/
-
-    @PostMapping(path = "/create")
-    public Event creatEvent(@RequestBody Event  event){
-        return eventService.createEvent(event);
+    @PostMapping
+    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
+        Event createdEvent = eventService.createEvent(event);
+        return ResponseEntity.status(201).body(createdEvent);
     }
 
-
-    @PutMapping(path = "/update/{id}")
-    public Event updateEvent(@PathVariable  int id, @RequestBody Event event){
-
-        return eventService.updateEvent(event);
-
+    @PutMapping("/{id}")
+    public ResponseEntity<Event> updateEvent(@PathVariable int id, @RequestBody Event event) {
+        Event updatedEvent = eventService.updateEvent(id, event);
+        if (updatedEvent == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updatedEvent);
     }
 
-    @DeleteMapping (path = "/delete/{id}")
-    public Event deleteUserByID(@PathVariable int id){
-
-        return  eventService.deleteUserById(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEventById(@PathVariable int id) {
+        boolean deleted = eventService.deleteEventById(id);
+        if (!deleted) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Get the list of available categories.
-     *
-     * @return ResponseEntity with list of categories
-     */
     @GetMapping("/categories")
     public ResponseEntity<List<String>> getCategories() {
         List<String> categories = eventService.getCategories();
@@ -73,17 +69,46 @@ public class EventController {
     public List<Event> getEvents(
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "category", required = false) String category) {
-        // Convert the category string to EventCategory enum
         Event.EventCategory eventCategory = null;
         if (category != null) {
             try {
                 eventCategory = Event.EventCategory.valueOf(category.toUpperCase());
             } catch (IllegalArgumentException e) {
-                // Handle invalid category value (optional)
-                // For example, you might want to return a 400 Bad Request status
+                throw new IllegalArgumentException("Invalid category value");
             }
         }
         return eventService.searchEvents(title, eventCategory);
     }
 
+    @GetMapping("/available-tickets/{id}")
+    public ResponseEntity<Integer> getAvailableTickets(@PathVariable int id) {
+        int availableTickets = eventService.getAvailableTickets(id);
+        return ResponseEntity.ok(availableTickets);
+    }
+
+    @PutMapping("/available-tickets/{id}")
+    public ResponseEntity<Void> setAvailableTickets(
+            @PathVariable int id,
+            @RequestParam int availableTickets) {
+        eventService.setAvailableTickets(id, availableTickets);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/unit-price/{id}")
+    public ResponseEntity<BigDecimal> getUnitPrice(@PathVariable int id) {
+        BigDecimal unitPrice = eventService.getUnitPrice(id);
+        if (unitPrice == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(unitPrice);
+    }
+
+    @PutMapping("/unit-price/{id}")
+    public ResponseEntity<Void> setUnitPrice(
+            @PathVariable int id,
+            @RequestParam BigDecimal unitPrice) {
+        eventService.setUnitPrice(id, unitPrice);
+        return ResponseEntity.ok().build();
+    }
 }
+
