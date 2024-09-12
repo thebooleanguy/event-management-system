@@ -5,6 +5,7 @@ import lk.nibm.common.dto.PaymentResponse;
 import lk.nibm.paymentservice.model.Payment;
 import lk.nibm.paymentservice.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,15 +25,20 @@ public class PaymentController {
     // -----------------------------------------------------------
 
     /**
-     * Process a payment request.
+     * Processes a payment.
      *
-     * @param paymentRequest the payment request containing payment details.
-     * @return the response indicating success or failure.
+     * @param payment the payment entity containing payment details.
+     * @return a response indicating success or failure.
      */
     @PostMapping("/process")
-    public ResponseEntity<PaymentResponse> processPayment(@RequestBody PaymentRequest paymentRequest) {
-        PaymentResponse response = paymentService.processPayment(paymentRequest);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Payment> processPayment(@RequestBody Payment payment) {
+        try {
+            Payment processedPayment = paymentService.processPayment(payment);
+            return ResponseEntity.ok(processedPayment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new Payment());
+        }
     }
 
     /**

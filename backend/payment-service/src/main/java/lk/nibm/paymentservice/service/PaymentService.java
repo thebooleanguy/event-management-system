@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PaymentService {
@@ -25,28 +26,19 @@ public class PaymentService {
     /**
      * Processes a payment.
      *
-     * @param paymentRequest the payment request containing payment details.
-     * @return the payment response indicating success or failure.
+     * @param payment the payment entity containing payment details.
+     * @return the payment entity indicating success or failure.
      */
-    public PaymentResponse processPayment(PaymentRequest paymentRequest) {
-        // Logic to process payment
-        // Assuming payment is always successful
-        Payment payment = new Payment();
-        payment.setUserId(paymentRequest.getUserId());
-        payment.setBookingId(paymentRequest.getBookingId());
-        payment.setAmount(paymentRequest.getAmount());
-        payment.setPaymentMethod(paymentRequest.getPaymentMethod());
-        payment.setTransactionId("TX12345"); // Should be generated dynamically
+    public Payment processPayment(Payment payment) {
+        // Generate a unique transaction ID using UUID for this scenario
+        // But this should actually be generated dynamically from a payment gateway
+        String transactionId = "TX-" + UUID.randomUUID().toString();
+        payment.setTransactionId(transactionId);
+        // Assume a payment is always successful in this scenario
         payment.setSuccess(true);
 
-        paymentRepository.save(payment);
-
-        PaymentResponse response = new PaymentResponse();
-        response.setSuccess(true);
-        response.setTransactionId(payment.getTransactionId());
-        response.setMessage("Payment successful");
-
-        return response;
+        // Save the payment with the generated transaction ID
+        return paymentRepository.save(payment);
     }
 
     /**

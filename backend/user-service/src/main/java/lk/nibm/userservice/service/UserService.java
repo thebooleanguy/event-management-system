@@ -161,6 +161,15 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
+    // --- Spring Security ---
+
+    /**
+     * Loads a user by their email address for Spring Security authentication.
+     *
+     * @param email the email address of the user to load.
+     * @return a UserDetails object containing the user's email, password, and authorities.
+     * @throws UsernameNotFoundException if no user is found with the provided email.
+     */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // Log the attempt to load a user based on the provided email address.

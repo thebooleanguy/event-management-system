@@ -1,5 +1,6 @@
 package lk.nibm.bookingservice.controller;
 
+import lk.nibm.bookingservice.dto.BookingDTO;
 import lk.nibm.bookingservice.model.Booking;
 import lk.nibm.bookingservice.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,16 +93,30 @@ public class BookingController {
     /**
      * Book a new ticket.
      *
-     * @param bookingRequest the booking request containing event and user details.
-     * @return the saved booking or 400 Bad Request if validation fails.
+     * @param bookingRequestDTO the booking request containing event, user, and optional payment details.
+     * @return the saved booking or a detailed error message if validation fails.
      */
-    @PostMapping
-    public ResponseEntity<Booking> bookTicket(@RequestBody Booking bookingRequest) {
+    @PostMapping("/book")
+    public ResponseEntity<?> bookTicket(@RequestBody BookingDTO bookingRequestDTO) {
         try {
-            Booking newBooking = bookingService.bookTicket(bookingRequest);
+            // 1. Validate the DTO if necessary (e.g., using annotations or custom checks)
+            if (bookingRequestDTO.getEventId() == 0 || bookingRequestDTO.getUserId() == 0) {
+                return ResponseEntity.badRequest().body("Event ID and User ID must be provided.");
+            }
+
+            // 2. Book the ticket using the service
+            Booking newBooking = bookingService.bookTicket(bookingRequestDTO);
+
+            // 3. Return the new booking as the response
             return ResponseEntity.ok(newBooking);
+
+        } catch (IllegalArgumentException ex) {
+            // 4. Handle specific validation or illegal argument errors
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            // 5. Catch general exceptions and return a bad request response with error details
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error processing booking: " + e.getMessage());
         }
     }
 }
