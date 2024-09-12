@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -103,6 +105,7 @@ public class BookingService {
      * @param bookingRequest the booking request containing event and user details.
      * @return the saved booking.
      */
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public Booking bookTicket(Booking bookingRequest) {
         // Validate input to ensure that both eventId and userId are provided
         if (bookingRequest.getEventId() == 0 || bookingRequest.getUserId() == 0) {
