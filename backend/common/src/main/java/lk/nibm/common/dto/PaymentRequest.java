@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class PaymentRequest {
     private int bookingId;
+    private int userId;
     private BigDecimal amount;
     private String paymentMethod; // E.g., "Credit Card", "PayPal", etc.
 }
