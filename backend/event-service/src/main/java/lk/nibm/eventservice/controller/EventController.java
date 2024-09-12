@@ -195,7 +195,13 @@ public class EventController {
         return ResponseEntity.ok().build();
     }
 
-    // Endpoint to reduce available tickets
+    /**
+     * Reduces the number of available tickets for a specific event.
+     *
+     * @param eventId the ID of the event.
+     * @param ticketsToReduce the number of tickets to reduce.
+     * @return a ResponseEntity indicating success or failure.
+     */
     @PostMapping("/tickets/reduce")
     public ResponseEntity<Void> reduceAvailableTickets(@RequestParam("eventId") Long eventId, @RequestParam("ticketsToReduce") int ticketsToReduce) {
         boolean success = eventService.reduceAvailableTickets(eventId, ticketsToReduce);
