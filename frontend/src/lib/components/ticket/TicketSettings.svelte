@@ -1,21 +1,32 @@
-<!-- src/lib/components/ticket/TicketSettings.svelte -->
 <script>
 	import { onMount } from 'svelte';
-	import { ticketService } from '$lib/services/ticketService';
+	import { eventService } from '$lib/services/eventService';
 
 	export let eventId;
 	let availableTickets = 0;
 	let unitPrice = 0;
 	let error = '';
+	let isLoading = false;
 
 	async function fetchTicketData() {
+		if (!eventId) {
+			error = 'Event ID is not defined';
+			return;
+		}
+
+		isLoading = true;
 		try {
-			const data = await ticketService.getTicketData(eventId);
-			availableTickets = data.availableTickets;
-			unitPrice = data.unitPrice;
+			const [tickets, price] = await Promise.all([
+				eventService.getAvailableTickets(eventId),
+				eventService.getUnitPrice(eventId)
+			]);
+			availableTickets = tickets;
+			unitPrice = price;
 		} catch (err) {
 			error = 'Failed to fetch ticket data';
-			console.error(err);
+			console.error('Error fetching ticket data:', err);
+		} finally {
+			isLoading = false;
 		}
 	}
 
@@ -26,19 +37,33 @@
 	});
 
 	async function saveChanges() {
+		if (!eventId) {
+			error = 'Event ID is not defined';
+			return;
+		}
+
+		isLoading = true;
 		try {
-			await ticketService.setAvailableTickets(eventId, availableTickets);
-			await ticketService.setUnitPrice(eventId, unitPrice);
+			await Promise.all([
+				eventService.setAvailableTickets(eventId, availableTickets),
+				eventService.setUnitPrice(eventId, unitPrice)
+			]);
 			alert('Ticket settings updated successfully!');
 		} catch (err) {
 			error = 'Failed to update ticket settings';
-			console.error(err);
+			console.error('Error updating ticket settings:', err);
+		} finally {
+			isLoading = false;
 		}
 	}
 </script>
 
 {#if error}
 	<p class="text-red-500">{error}</p>
+{/if}
+
+{#if isLoading}
+	<p class="text-gray-500">Loading...</p>
 {/if}
 
 <div class="p-6">
@@ -51,6 +76,8 @@
 			id="availableTickets"
 			bind:value={availableTickets}
 			class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+			min="0"
+			disabled={isLoading}
 		/>
 	</div>
 	<div class="mb-4">
@@ -60,12 +87,22 @@
 			id="unitPrice"
 			bind:value={unitPrice}
 			class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+			min="0"
+			disabled={isLoading}
 		/>
 	</div>
 
 	<div class="flex justify-end space-x-4">
-		<button on:click={saveChanges} class="bg-blue-500 text-white px-4 py-2 rounded">
-			Save Changes
+		<button
+			on:click={saveChanges}
+			class="bg-blue-500 text-white px-4 py-2 rounded"
+			disabled={isLoading}
+		>
+			{#if isLoading}
+				Saving...
+			{:else}
+				Save Changes
+			{/if}
 		</button>
 	</div>
 </div>

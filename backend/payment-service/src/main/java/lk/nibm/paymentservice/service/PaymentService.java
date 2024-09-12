@@ -30,13 +30,13 @@ public class PaymentService {
      */
     public PaymentResponse processPayment(PaymentRequest paymentRequest) {
         // Logic to process payment
-        // For simplicity, let's assume payment is always successful
+        // Assuming payment is always successful
         Payment payment = new Payment();
         payment.setUserId(paymentRequest.getUserId());
         payment.setBookingId(paymentRequest.getBookingId());
         payment.setAmount(paymentRequest.getAmount());
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
-        payment.setTransactionId("TX12345"); // This should be generated dynamically
+        payment.setTransactionId("TX12345"); // Should be generated dynamically
         payment.setSuccess(true);
 
         paymentRepository.save(payment);

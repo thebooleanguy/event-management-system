@@ -25,32 +25,42 @@ apiClient.interceptors.request.use(
 );
 
 export const eventService = {
-	getAllEvents: () => apiClient.get('/').then((response) => response.data),
+	// Retrieve all events
+	getAllEvents: () => apiClient.get('/all').then((response) => response.data),
 
+	// Retrieve an event by ID
 	getEventById: (id) => apiClient.get(`/${id}`).then((response) => response.data),
 
-	findEventByTitle: (title) =>
-		apiClient.get('/', { params: { title } }).then((response) => response.data),
-
+	// Search for events by title and/or category
 	searchEvents: (title, category) =>
 		apiClient.get('/search', { params: { title, category } }).then((response) => response.data),
 
-	createEvent: (eventData) => apiClient.post('/', eventData).then((response) => response.data),
+	// Create a new event
+	createEvent: (eventData, organizerId) =>
+		apiClient.post('/', { ...eventData, organizerId }).then((response) => response.data),
 
+	// Update an event by ID
 	updateEvent: (id, eventData) =>
 		apiClient.put(`/${id}`, eventData).then((response) => response.data),
 
+	// Delete an event by ID
 	deleteEvent: (id) => apiClient.delete(`/${id}`),
 
+	// Retrieve all available event categories
 	getCategories: () => apiClient.get('/categories').then((response) => response.data),
 
+	// Retrieve the number of available tickets for an event by ID
 	getAvailableTickets: (id) =>
-		apiClient.get(`/available-tickets/${id}`).then((response) => response.data),
+		apiClient.get(`/tickets/available/${id}`).then((response) => response.data),
 
+	// Set the number of available tickets for an event by ID
 	setAvailableTickets: (id, availableTickets) =>
-		apiClient.put(`/available-tickets/${id}`, { availableTickets }),
+		apiClient.put(`/tickets/available/${id}`, null, { params: { availableTickets } }),
 
-	getUnitPrice: (id) => apiClient.get(`/unit-price/${id}`).then((response) => response.data),
+	// Retrieve the ticket price (unit price) for an event by ID
+	getUnitPrice: (id) => apiClient.get(`/tickets/price/${id}`).then((response) => response.data),
 
-	setUnitPrice: (id, unitPrice) => apiClient.put(`/unit-price/${id}`, { unitPrice })
+	// Set the ticket price (unit price) for an event by ID
+	setUnitPrice: (id, unitPrice) =>
+		apiClient.put(`/tickets/price/${id}`, null, { params: { unitPrice } })
 };

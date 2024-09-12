@@ -69,14 +69,14 @@ export const userService = {
 
 	updateUserName: (email, newName) =>
 		apiClient
-			.put(`/update-name`, null, {
+			.put('/update-name', null, {
 				params: { email, newName }
 			})
 			.then((response) => response.data),
 
 	deleteUser: async (email) => {
 		try {
-			await apiClient.delete(`/delete`, {
+			await apiClient.delete('/delete', {
 				params: { email }
 			});
 		} catch (error) {

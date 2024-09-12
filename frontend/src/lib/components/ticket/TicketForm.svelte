@@ -1,75 +1,53 @@
 <script>
 	import { onMount } from 'svelte';
-	import { ticketService } from '$lib/services/ticketService';
+	import { bookingService } from '$lib/services/bookingService';
 	import { userService } from '$lib/services/userService';
 
 	export let eventId = ''; // Passed as a prop
-	export let eventName = ''; // Passed as a prop
+	export let eventTitle = ''; // Passed as a prop
 	let userId = '';
 
-	let seatNumber = '';
+	// let seatNumber = '';
 	let totalTickets = 1;
-	let totalPrice = 0;
-	let availableTickets = 0;
-	let unitPrice = 0;
+	let availableTickets = 0; // This field is kept but not used for validation
 	let error = '';
 	let isLoading = false;
 
 	onMount(async () => {
 		try {
 			// Fetch user ID when the component mounts
-			userId = await userService.getUserId(); // Adjust this method as needed
+			userId = await userService.getUserId();
 			console.log('Fetched user ID:', userId);
 
-			// Fetch available bookings and unit price when the component mounts
-			availableTickets = await ticketService.getAvailableTickets(eventId);
-			console.log('Available bookings:', availableTickets);
-
-			unitPrice = await ticketService.getUnitPrice(eventId);
-			console.log('Unit price:', unitPrice);
-
-			// Update total price based on the initial totalTickets value
-			updateTotalPrice();
+			// 	// Fetch available tickets when the component mounts
+			// 	availableTickets = await bookingService.getAvailableTickets(eventId);
+			// 	console.log('Available tickets:', availableTickets);
 		} catch (err) {
-			error = 'Failed to fetch user information, available bookings, or unit price';
+			error = 'Failed to fetch user information or available tickets';
 			console.error('Error fetching data:', err);
 		}
 	});
 
-	function updateTotalPrice() {
-		totalPrice = totalTickets * unitPrice;
-	}
-
 	async function handleSubmit() {
 		isLoading = true;
 		try {
-			// Check if requested bookings exceed available bookings
-			if (totalTickets > availableTickets) {
-				throw new Error('Not enough bookings available');
-			}
-
-			const ticketData = {
+			const bookingData = {
 				eventId,
-				// paymentId: 123, // Placeholder for payment ID
 				userId,
-				seatNumber,
-				totalTickets,
-				totalPrice
+				// seatNumber,
+				totalTickets
 			};
 
-			console.log('Submitting ticket data:', ticketData); // Debugging line
+			console.log('Submitting booking data:', bookingData);
 
-			await ticketService.bookTicket(ticketData);
+			await bookingService.bookTicket(bookingData);
 			alert('Ticket booked successfully!');
 		} catch (err) {
-			// Type assertion to check if the error is an instance of Error
-			if (err instanceof Error) {
-				error = `Booking failed: ${err.message}`;
-				console.error('Booking error:', err.message); // Log the error message
-			} else {
-				error = 'Booking failed: Unknown error occurred';
-				console.error('Booking error:', err); // Log the unknown error
-			}
+			error =
+				err instanceof Error
+					? `Booking failed: ${err.message}`
+					: 'Booking failed: Unknown error occurred';
+			console.error('Booking error:', error);
 		} finally {
 			isLoading = false;
 		}
@@ -83,7 +61,7 @@
 >
 	<h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Book Ticket</h2>
 
-	<!-- Display Event ID, User ID, and Event Name (Non-editable) -->
+	<!-- Display Event ID and Event Title (Non-editable) -->
 	<div class="space-y-4">
 		<div>
 			<label for="eventId" class="block text-gray-700 font-semibold mb-1">Event ID</label>
@@ -97,28 +75,17 @@
 		</div>
 
 		<div>
-			<label for="userId" class="block text-gray-700 font-semibold mb-1">User ID</label>
+			<label for="eventTitle" class="block text-gray-700 font-semibold mb-1">Event Title</label>
 			<input
 				type="text"
-				id="userId"
-				value={userId}
+				id="eventTitle"
+				value={eventTitle}
 				readonly
 				class="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-100 text-gray-600"
 			/>
 		</div>
 
-		<div>
-			<label for="eventName" class="block text-gray-700 font-semibold mb-1">Event Name</label>
-			<input
-				type="text"
-				id="eventName"
-				value={eventName}
-				readonly
-				class="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-100 text-gray-600"
-			/>
-		</div>
-
-		<!-- Display Available Tickets -->
+		<!-- Display Available Tickets (Read-Only) -->
 		<div>
 			<label for="availableTickets" class="block text-gray-700 font-semibold mb-1"
 				>Available Tickets</label
@@ -132,7 +99,7 @@
 			/>
 		</div>
 
-		<!-- Editable Fields for Booking -->
+		<!-- Editable Fields for Booking
 		<div>
 			<label for="seatNumber" class="block text-gray-700 font-semibold mb-1">Seat Number</label>
 			<input
@@ -143,7 +110,7 @@
 				class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 				placeholder="Enter seat number"
 			/>
-		</div>
+		</div> -->
 
 		<div>
 			<label for="totalTickets" class="block text-gray-700 font-semibold mb-1">Total Tickets</label>
@@ -154,18 +121,6 @@
 				min="1"
 				required
 				class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-				on:input={updateTotalPrice}
-			/>
-		</div>
-
-		<div>
-			<label for="totalPrice" class="block text-gray-700 font-semibold mb-1">Total Price</label>
-			<input
-				type="number"
-				id="totalPrice"
-				value={totalPrice}
-				readonly
-				class="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-100 text-gray-600"
 			/>
 		</div>
 	</div>

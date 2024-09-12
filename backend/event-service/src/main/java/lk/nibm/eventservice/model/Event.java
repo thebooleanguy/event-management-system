@@ -42,7 +42,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventCategory category;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(name = "available_tickets")

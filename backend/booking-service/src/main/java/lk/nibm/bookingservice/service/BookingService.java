@@ -5,14 +5,19 @@ import lk.nibm.bookingservice.model.Booking;
 import lk.nibm.bookingservice.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class BookingService {
@@ -28,6 +33,8 @@ public class BookingService {
 
     @Value("${event.service.name}")
     private String eventServiceName;
+
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
 
     // -----------------------------------------------------------
     // Standard CRUD Methods
@@ -99,42 +106,60 @@ public class BookingService {
     public Booking bookTicket(Booking bookingRequest) {
         // Validate input to ensure that both eventId and userId are provided
         if (bookingRequest.getEventId() == 0 || bookingRequest.getUserId() == 0) {
-            throw new RuntimeException("Event ID and User ID must be provided");
+            throw new IllegalArgumentException("Event ID and User ID must be provided");
         }
 
-        // Fetch the URL of the event-service using the DiscoveryClient
-        // DiscoveryClient helps to locate the service instance registered with Eureka
-        String eventServiceUrl = discoveryClient.getInstances(eventServiceName)
-                .stream()
-                .findFirst()
-                .map(instance -> instance.getUri().toString())
-                .orElseThrow(() -> new RuntimeException("Event service not found"));
+        // Define the base URL for the event-service
+        String eventServiceUrl = "http://event-service/api/events/";
 
-        // Call the event-service to get event details using RestTemplate
-        ResponseEntity<EventDTO> response = restTemplate.getForEntity(
-                String.format("%s/api/events/%d", eventServiceUrl, bookingRequest.getEventId()),
-                EventDTO.class
-        );
+        try {
+            // 1. Call the event-service to get available tickets
+            ResponseEntity<Integer> availableTicketsResponse = restTemplate.exchange(
+                    String.format("%s/tickets/available/{eventId}", eventServiceUrl),
+                    HttpMethod.GET,
+                    null,
+                    Integer.class,
+                    bookingRequest.getEventId()
+            );
 
-        // Extract event data from the response
-        EventDTO event = response.getBody();
+            // Extract available tickets from the response
+            Integer availableTickets = availableTicketsResponse.getBody();
+            if (availableTickets == null || availableTickets < bookingRequest.getTotalTickets()) {
+                throw new RuntimeException("Not enough tickets available");
+            }
 
-        // Check if the event exists
-        if (event == null) {
-            throw new RuntimeException("Event not found");
+            // 2. Call the event-service to get the ticket price
+            ResponseEntity<BigDecimal> priceResponse = restTemplate.getForEntity(
+                    String.format("%s/tickets/price/%d", eventServiceUrl, bookingRequest.getEventId()),
+                    BigDecimal.class
+            );
+
+            // Extract price from the response
+            BigDecimal unitPrice = priceResponse.getBody();
+            if (unitPrice == null) {
+                throw new RuntimeException("Ticket price not found");
+            }
+
+            // 3. Calculate the total price for the booking
+            BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(bookingRequest.getTotalTickets()));
+            bookingRequest.setTotalPrice(totalPrice.doubleValue());
+
+            // 4. Save the booking information to the database
+            return bookingRepository.save(bookingRequest);
+
+        } catch (HttpClientErrorException e) {
+            log.error("Client error when calling event service: {}", e.getResponseBodyAsString(), e);
+            throw new RuntimeException("Error communicating with event service: " + e.getMessage(), e);
+        } catch (HttpServerErrorException e) {
+            log.error("Server error from event service: {}", e.getResponseBodyAsString(), e);
+            throw new RuntimeException("Event service encountered an error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Unexpected error during booking: ", e);
+            throw new RuntimeException("An unexpected error occurred: " + e.getMessage(), e);
         }
-
-        // Check if there are enough available tickets for the booking request
-        if (event.getAvailableTickets() < bookingRequest.getTotalTickets()) {
-            throw new RuntimeException("Not enough tickets available");
-        }
-
-        // Calculate the total price for the booking
-        BigDecimal unitPrice = event.getPrice();
-        BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(bookingRequest.getTotalTickets()));
-        bookingRequest.setTotalPrice(totalPrice.doubleValue());
-
-        // Save the booking information to the database
-        return bookingRepository.save(bookingRequest);
     }
+
+
+
+
 }

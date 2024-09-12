@@ -1,53 +1,75 @@
 <script>
+	import { onMount } from 'svelte';
 	import { eventService } from '$lib/services/eventService';
-	import { userService } from '$lib/services/userService'; // Import userService to get user info
-	import { goto } from '$app/navigation'; // Import goto for navigation
+	import { userService } from '$lib/services/userService';
+	import { goto } from '$app/navigation';
 
 	export let event = {
 		title: '',
 		description: '',
 		date: '',
 		location: '',
-		category: 'OTHER'
+		category: 'OTHER',
+		imageUrl: '/images/default.jpg' // default image URL
 	};
 	export let onSubmit;
 
 	let error = '';
-	let isLoading = false; // To handle loading state
+	let isLoading = false;
+	let categories = []; // Initialize categories as an empty array
+
+	// Utility function to convert category names to Title Case
+	function toTitleCase(str) {
+		return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+	}
 
 	async function getCurrentUserId() {
 		try {
 			return await userService.getUserId();
 		} catch (err) {
 			console.error('Failed to fetch user ID:', err);
-			return null; // Return null if there's an error or user is not logged in
+			return null;
 		}
 	}
 
 	async function handleSubmit() {
-		isLoading = true; // Set loading state
+		isLoading = true;
 		try {
 			const organizerId = await getCurrentUserId();
-			const eventData = { ...event };
+			if (!organizerId) {
+				error = 'User not logged in';
+				return;
+			}
 
+			const eventData = { ...event };
 			let newEventId;
+
 			if (event.id) {
 				await eventService.updateEvent(event.id, eventData);
 				newEventId = event.id;
 			} else {
 				const createdEvent = await eventService.createEvent(eventData, organizerId);
-				newEventId = createdEvent.id; // Assuming the response contains the new event ID
+				newEventId = createdEvent.id;
 			}
 
-			// Redirect to TicketSettings with the event ID
 			goto(`/bookings/ticket-settings/${newEventId}`);
 		} catch (err) {
 			error = 'Failed to save event';
 			console.error(err);
 		} finally {
-			isLoading = false; // Reset loading state
+			isLoading = false;
 		}
 	}
+
+	// Fetch categories on component mount
+	onMount(async () => {
+		try {
+			categories = await eventService.getCategories();
+		} catch (err) {
+			error = 'Failed to load categories';
+			console.error(err);
+		}
+	});
 </script>
 
 <form
@@ -58,7 +80,9 @@
 		{event.id ? 'Update Event' : 'Create New Event'}
 	</h2>
 
+	<!-- Form Fields -->
 	<div class="space-y-4">
+		<!-- Title -->
 		<div>
 			<label for="title" class="block text-gray-700 font-semibold mb-1">Title</label>
 			<input
@@ -71,6 +95,7 @@
 			/>
 		</div>
 
+		<!-- Description -->
 		<div>
 			<label for="description" class="block text-gray-700 font-semibold mb-1">Description</label>
 			<textarea
@@ -82,6 +107,7 @@
 			></textarea>
 		</div>
 
+		<!-- Date -->
 		<div>
 			<label for="date" class="block text-gray-700 font-semibold mb-1">Date</label>
 			<input
@@ -93,6 +119,7 @@
 			/>
 		</div>
 
+		<!-- Location -->
 		<div>
 			<label for="location" class="block text-gray-700 font-semibold mb-1">Location</label>
 			<input
@@ -105,6 +132,7 @@
 			/>
 		</div>
 
+		<!-- Category -->
 		<div>
 			<label for="category" class="block text-gray-700 font-semibold mb-1">Category</label>
 			<select
@@ -112,13 +140,25 @@
 				bind:value={event.category}
 				class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-blue"
 			>
-				<option value="MUSIC">Music</option>
-				<option value="THEATER">Theater</option>
-				<option value="CONCERT">Concert</option>
-				<option value="SPORT">Sport</option>
-				<option value="CONFERENCE">Conference</option>
-				<option value="OTHER">Other</option>
+				{#each categories as category}
+					<option value={category}>{toTitleCase(category)}</option>
+				{/each}
 			</select>
+		</div>
+
+		<!-- Image URL -->
+		<div>
+			<label for="imageUrl" class="block text-gray-700 font-semibold mb-1">Event Image URL</label>
+			<input
+				type="text"
+				id="imageUrl"
+				bind:value={event.imageUrl}
+				class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-blue"
+				placeholder="Enter image URL"
+			/>
+			{#if event.imageUrl}
+				<img src={event.imageUrl} alt="Event Image" class="w-full mt-4" />
+			{/if}
 		</div>
 	</div>
 

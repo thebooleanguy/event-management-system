@@ -1,58 +1,59 @@
 <script>
 	import { onMount } from 'svelte';
-	import { ticketService } from '$lib/services/ticketService';
+	import { bookingService } from '$lib/services/bookingService';
 	import { eventService } from '$lib/services/eventService';
 	import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 
-	let allTickets = [];
+	let allBookings = [];
 	let error = '';
 	let isLoading = true;
 
 	onMount(async () => {
 		try {
-			allTickets = await ticketService.getAllTickets();
+			const bookings = await bookingService.getAllBookings();
 
 			// Fetch event titles for the bookings
-			allTickets = await Promise.all(
-				allTickets.map(async (ticket) => {
+			allBookings = await Promise.all(
+				bookings.map(async (booking) => {
 					try {
-						const event = await eventService.getEventById(ticket.eventId);
-						return { ...ticket, eventTitle: event.title }; // Change 'eventName' to 'eventTitle'
+						const event = await eventService.getEventById(booking.eventId);
+						return { ...booking, eventTitle: event.title }; // Change 'eventName' to 'eventTitle'
 					} catch (err) {
 						console.error('Error fetching event:', err);
-						return ticket; // Return ticket without eventTitle if there's an error
+						return { ...booking, eventTitle: 'Unknown Event' }; // Default to 'Unknown Event' if there's an error
 					}
 				})
 			);
 		} catch (err) {
-			error = 'Failed to fetch all bookings';
-			console.error(err);
+			error = 'Failed to fetch all bookings. Please try again later.';
+			console.error('Error fetching bookings:', err);
 		} finally {
 			isLoading = false;
 		}
 	});
 
-	async function cancelTicket(ticketId) {
+	async function cancelBooking(bookingId) {
+		if (!confirm('Are you sure you want to cancel this booking?')) return;
 		try {
-			await ticketService.cancelTicket(ticketId);
-			allTickets = allTickets.filter((ticket) => ticket.id !== ticketId);
-			alert('Ticket canceled successfully!');
+			await bookingService.cancelBooking(bookingId);
+			allBookings = allBookings.filter((booking) => booking.id !== bookingId);
+			alert('Booking canceled successfully!');
 		} catch (err) {
-			error = 'Failed to cancel ticket';
-			console.error(err);
+			error = 'Failed to cancel booking. Please try again later.';
+			console.error('Error canceling booking:', err);
 		}
 	}
 </script>
 
 <div class="p-8">
-	<h2 class="text-2xl font-bold text-gray-800 mb-4">All Tickets</h2>
+	<h2 class="text-2xl font-bold text-gray-800 mb-4">All Bookings</h2>
 
 	{#if isLoading}
-		<p>Loading...</p>
+		<p class="text-gray-600">Loading...</p>
 	{:else if error}
 		<p class="text-red-500">{error}</p>
-	{:else if allTickets.length === 0}
+	{:else if allBookings.length === 0}
 		<p class="text-gray-600">No bookings found.</p>
 	{:else}
 		<table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
@@ -60,24 +61,23 @@
 				<tr>
 					<th class="py-3 px-6 text-left">Event Title</th>
 					<th class="py-3 px-6 text-left">User ID</th>
-					<!-- <th class="py-3 px-6 text-left">Seat Number</th> -->
 					<th class="py-3 px-6 text-left">Total Tickets</th>
 					<th class="py-3 px-6 text-left">Total Price</th>
 					<th class="py-3 px-6 text-center">Action</th>
 				</tr>
 			</thead>
 			<tbody>
-				{#each allTickets as ticket (ticket.id)}
+				{#each allBookings as booking (booking.id)}
 					<tr class="border-b">
-						<td class="py-4 px-6">{ticket.eventTitle}</td>
-						<td class="py-4 px-6">{ticket.userId}</td>
-						<!-- <td class="py-4 px-6">{ticket.seatNumber}</td> -->
-						<td class="py-4 px-6">{ticket.totalTickets}</td>
-						<td class="py-4 px-6">{ticket.totalPrice}</td>
+						<td class="py-4 px-6">{booking.eventTitle}</td>
+						<td class="py-4 px-6">{booking.userId}</td>
+						<td class="py-4 px-6">{booking.totalTickets}</td>
+						<td class="py-4 px-6">${booking.totalPrice.toFixed(2)}</td>
 						<td class="py-4 px-6 text-center">
 							<button
 								class="text-red-600 hover:text-red-800 focus:outline-none"
-								on:click={() => cancelTicket(ticket.id)}
+								on:click={() => cancelBooking(booking.id)}
+								aria-label="Cancel booking"
 							>
 								<FontAwesomeIcon icon={faTrashAlt} />
 							</button>
