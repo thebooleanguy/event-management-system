@@ -2,6 +2,8 @@ package lk.nibm.bookingservice.service;
 
 //import lk.nibm.common.dto.EventDTO;
 import lk.nibm.bookingservice.dto.BookingDTO;
+import lk.nibm.bookingservice.dto.PaymentRequestDTO;
+import lk.nibm.bookingservice.dto.PaymentResponseDTO;
 import lk.nibm.bookingservice.model.Booking;
 import lk.nibm.bookingservice.repository.BookingRepository;
 //import lk.nibm.common.dto.PaymentRequest;
@@ -142,7 +144,7 @@ public class BookingService {
 
             // 3. Calculate the total price for the booking
             BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(bookingRequestDTO.getTotalTickets()));
-            bookingRequestDTO.setTotalPrice(totalPrice);  // Set the calculated total price
+            bookingRequestDTO.setTotalPrice(totalPrice);
 
             // 4. Map the DTO to the entity and save the booking
             Booking booking = new Booking();
@@ -150,7 +152,7 @@ public class BookingService {
             booking.setUserId(bookingRequestDTO.getUserId());
             booking.setTotalTickets(bookingRequestDTO.getTotalTickets());
             booking.setTotalPrice(totalPrice.doubleValue());
-            booking.setPaymentId(null);  // Payment can be added later
+            booking.setPaymentId(null);  // Set to null initially
 
             Booking savedBooking = bookingRepository.save(booking);
 
@@ -163,30 +165,35 @@ public class BookingService {
 
             // 6. If payment information is available, forward the payment info to the payment service
             if (bookingRequestDTO.getPaymentMethod() != null) {
-                // Create a map with the required payment data
-                Map<String, Object> paymentData = new HashMap<>();
-                paymentData.put("userId", bookingRequestDTO.getUserId());
-                paymentData.put("bookingId", savedBooking.getId());
-                paymentData.put("amount", totalPrice);
-                paymentData.put("paymentMethod", bookingRequestDTO.getPaymentMethod());
+                // 6.1 Create the PaymentRequestDTO and populate it
+                PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO();
+                paymentRequestDTO.setUserId(bookingRequestDTO.getUserId());
+                paymentRequestDTO.setBookingId(savedBooking.getId());
+                paymentRequestDTO.setAmount(totalPrice);
+                paymentRequestDTO.setPaymentMethod(bookingRequestDTO.getPaymentMethod());
 
-                // Send payment data to the payment service
-                ResponseEntity<Map> paymentResponse = restTemplate.postForEntity(
+                // 6.2 Send the payment data to the payment service
+                ResponseEntity<PaymentResponseDTO> paymentResponse = restTemplate.postForEntity(
                         String.format("%s/process", paymentServiceUrl),
-                        paymentData,
-                        Map.class
+                        paymentRequestDTO,
+                        PaymentResponseDTO.class
                 );
 
-                Map<String, Object> paymentResult = paymentResponse.getBody();
-                if (paymentResult == null || !(boolean) paymentResult.get("success")) {
-                    throw new RuntimeException("Payment processing failed: " + (paymentResult != null ? paymentResult.get("message") : "Unknown error"));
+                PaymentResponseDTO paymentResult = paymentResponse.getBody();
+                System.out.println("Payment service response: " + paymentResponse);
+
+                if (paymentResult == null || !paymentResult.isSuccess()) {
+                    throw new RuntimeException("Payment processing failed");
                 }
 
-                // Update the booking with payment information (assuming paymentId is returned)
-                Integer paymentId = (Integer) paymentResult.get("paymentId");
+                // 6.3 Update the booking with the paymentId if it's returned
+                Integer paymentId = paymentResult.getId();
                 if (paymentId != null) {
                     savedBooking.setPaymentId(paymentId);
-                    bookingRepository.save(savedBooking);
+                    savedBooking = bookingRepository.save(savedBooking);  // Save booking with paymentId
+                    System.out.println("Booking updated with payment ID: " + savedBooking.getPaymentId());  // Debugging step
+                } else {
+                    System.out.println("Payment ID is null");  // Debugging step
                 }
             }
 
@@ -196,12 +203,5 @@ public class BookingService {
             throw new RuntimeException("Error communicating with event or payment service: " + e.getMessage(), e);
         }
     }
-
-
-
-
-
-
-
 
 }
