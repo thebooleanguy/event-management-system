@@ -37,8 +37,6 @@ package-lock.json
 yarn.lock
 
 # React
-build/
-*.log
 *.cache
 *.tsbuildinfo
 
@@ -88,11 +86,14 @@ yarn-error.log*
 # NetBeans
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
 build/
 
-# Visual Studio Code
-.vscode/
+# TypeScript
+*.d.ts
+*.tsbuildinfo
 
+# Vue.js
+# Exclude local environment files
+*.local
