@@ -13,14 +13,35 @@ import java.util.List;
 @RequestMapping("/api/events/")
 public class EventController {
 
-    @Autowired
-    private EventService eventService;
+    private final EventService eventService;
 
-    @GetMapping
+    @Autowired
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+    // -----------------------------------------------------------
+    // Standard CRUD Endpoints (Create, Read, Update, Delete)
+    // -----------------------------------------------------------
+
+    /**
+     * Retrieve all events.
+     * Standard CRUD Read (findAll).
+     *
+     * @return list of all events.
+     */
+    @GetMapping("/all")
     public List<Event> findAllEvents() {
         return eventService.getEvents();
     }
 
+    /**
+     * Retrieve an event by ID.
+     * Standard CRUD Read (findById).
+     *
+     * @param id the ID of the event to retrieve.
+     * @return the event if found, 404 otherwise.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Event> findEventById(@PathVariable int id) {
         Event event = eventService.getEventById(id);
@@ -30,17 +51,27 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
-    @GetMapping(params = "title")
-    public List<Event> findEventByTitle(@RequestParam String title) {
-        return eventService.findEventByTitle(title);
-    }
-
+    /**
+     * Create a new event.
+     * Standard CRUD Create.
+     *
+     * @param event the event to create.
+     * @return the created event with 201 status.
+     */
     @PostMapping
     public ResponseEntity<Event> createEvent(@RequestBody Event event) {
         Event createdEvent = eventService.createEvent(event);
         return ResponseEntity.status(201).body(createdEvent);
     }
 
+    /**
+     * Update an event by ID.
+     * Standard CRUD Update.
+     *
+     * @param id the ID of the event to update.
+     * @param event the event object with updated data.
+     * @return the updated event, or 404 if not found.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Event> updateEvent(@PathVariable int id, @RequestBody Event event) {
         Event updatedEvent = eventService.updateEvent(id, event);
@@ -50,6 +81,13 @@ public class EventController {
         return ResponseEntity.ok(updatedEvent);
     }
 
+    /**
+     * Delete an event by ID.
+     * Standard CRUD Delete.
+     *
+     * @param id the ID of the event to delete.
+     * @return 204 No Content if successful, 404 if not found.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEventById(@PathVariable int id) {
         boolean deleted = eventService.deleteEventById(id);
@@ -59,12 +97,17 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/categories")
-    public ResponseEntity<List<String>> getCategories() {
-        List<String> categories = eventService.getCategories();
-        return ResponseEntity.ok(categories);
-    }
+    // -----------------------------------------------------------
+    // Custom Endpoints
+    // -----------------------------------------------------------
 
+    /**
+     * Search for events by title and/or category.
+     *
+     * @param title the title to search for (optional).
+     * @param category the category to filter by (optional).
+     * @return list of matching events.
+     */
     @GetMapping("/search")
     public List<Event> getEvents(
             @RequestParam(value = "title", required = false) String title,
@@ -80,13 +123,41 @@ public class EventController {
         return eventService.searchEvents(title, eventCategory);
     }
 
-    @GetMapping("/available-tickets/{id}")
+    /**
+     * Retrieve all available event categories.
+     *
+     * @return list of category names.
+     */
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        List<String> categories = eventService.getCategories();
+        return ResponseEntity.ok(categories);
+    }
+
+    // -----------------------------------------------------------
+    // Ticket-Related Endpoints
+    // -----------------------------------------------------------
+
+    /**
+     * Retrieve the number of available tickets for an event by ID.
+     *
+     * @param id the ID of the event.
+     * @return the number of available tickets.
+     */
+    @GetMapping("/tickets/available/{id}")
     public ResponseEntity<Integer> getAvailableTickets(@PathVariable int id) {
         int availableTickets = eventService.getAvailableTickets(id);
         return ResponseEntity.ok(availableTickets);
     }
 
-    @PutMapping("/available-tickets/{id}")
+    /**
+     * Set the number of available tickets for an event by ID.
+     *
+     * @param id the ID of the event.
+     * @param availableTickets the number of available tickets to set.
+     * @return 200 OK if successful.
+     */
+    @PutMapping("/tickets/available/{id}")
     public ResponseEntity<Void> setAvailableTickets(
             @PathVariable int id,
             @RequestParam int availableTickets) {
@@ -94,7 +165,13 @@ public class EventController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/unit-price/{id}")
+    /**
+     * Retrieve the ticket price (unit price) for an event by ID.
+     *
+     * @param id the ID of the event.
+     * @return the ticket price, or 404 if not found.
+     */
+    @GetMapping("/tickets/price/{id}")
     public ResponseEntity<BigDecimal> getUnitPrice(@PathVariable int id) {
         BigDecimal unitPrice = eventService.getUnitPrice(id);
         if (unitPrice == null) {
@@ -103,7 +180,14 @@ public class EventController {
         return ResponseEntity.ok(unitPrice);
     }
 
-    @PutMapping("/unit-price/{id}")
+    /**
+     * Set the ticket price (unit price) for an event by ID.
+     *
+     * @param id the ID of the event.
+     * @param unitPrice the new ticket price to set.
+     * @return 200 OK if successful.
+     */
+    @PutMapping("/tickets/price/{id}")
     public ResponseEntity<Void> setUnitPrice(
             @PathVariable int id,
             @RequestParam BigDecimal unitPrice) {
@@ -111,4 +195,3 @@ public class EventController {
         return ResponseEntity.ok().build();
     }
 }
-
