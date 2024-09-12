@@ -18,15 +18,16 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
     /**
@@ -34,7 +35,7 @@ public class User {
      * The role is stored as a string in the database.
      */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "role", nullable = false)
     private RoleEnum role;
 
     /**
@@ -42,6 +43,6 @@ public class User {
      */
     public enum RoleEnum {
         USER,
-        EVENT_ORG
+        ADMIN
     }
 }

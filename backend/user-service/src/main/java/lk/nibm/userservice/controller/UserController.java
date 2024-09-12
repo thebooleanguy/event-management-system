@@ -21,13 +21,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Controller for user-related operations including registration, login, and status checking.
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/users/")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -37,80 +38,29 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
+    // --- Standard CRUD Operations ---
+
+    /**
+     * Retrieves all users.
+     *
+     * @return A list of all users.
+     */
+    @GetMapping("/all")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.findAll();
+        return ResponseEntity.ok(users);
+    }
+
+    /**
+     * Registers a new user.
+     *
+     * @param user The user information to register.
+     * @return The registered user.
+     */
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
         User registeredUser = userService.registerUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            // Attempt authentication using the provided credentials
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
-            );
-
-            // Load user details
-            UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
-
-            // Generate JWT token
-            String jwt = jwtUtil.generateToken(userDetails);
-
-            // Retrieve user entity to include user details in the response
-            User user = userService.findByEmail(loginRequest.getEmail());
-
-            // Prepare response
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", jwt);
-            response.put("user", user); // Include user details in the response
-
-            return ResponseEntity.ok(response);
-        } catch (BadCredentialsException e) {
-            logger.warn("Invalid credentials: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        } catch (Exception e) {
-            logger.error("An error occurred during login", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
-        }
-    }
-
-
-    @GetMapping("/admin/users")
-    public ResponseEntity<?> getAllUsers() {
-        // This endpoint is an example of a protected admin route
-        // Implement the logic to return all users
-        return ResponseEntity.ok("This would return all users. Only accessible by EVENT_ORG role.");
-    }
-
-
-    /**
-     * Checks if the user is logged in.
-     *
-     * @param request The HTTP request.
-     * @return A response indicating the login status.
-     */
-    @GetMapping("/status")
-    public ResponseEntity<String> checkStatus(HttpServletRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
-            return ResponseEntity.ok("User is logged in: " + authentication.getName());
-        } else {
-            return ResponseEntity.ok("User is not logged in");
-        }
-    }
-
-    /**
-     * Logs out the user by invalidating the session.
-     *
-     * @param session The HTTP session to invalidate.
-     * @return A response indicating logout success.
-     */
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpSession session) {
-        session.invalidate(); // Invalidate the session
-        return ResponseEntity.ok("Logged out successfully");
     }
 
     /**
@@ -127,6 +77,34 @@ public class UserController {
     }
 
     /**
+     * Updates a user by their ID.
+     *
+     * @param id The ID of the user to update.
+     * @param user The user object with updated details.
+     * @return The updated user.
+     */
+    @PutMapping("/update/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+        User updatedUser = userService.updateById(id, user);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param id The ID of the user to delete.
+     * @return A response indicating success or failure.
+     */
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
+        boolean deleted = userService.deleteById(id);
+        return deleted ? ResponseEntity.ok("User deleted successfully") :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    // --- Custom Methods ---
+
+    /**
      * Retrieves a user by their email.
      *
      * @param email The email of the user.
@@ -136,6 +114,39 @@ public class UserController {
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         User user = userService.findByEmail(email);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+    }
+
+    /**
+     * Logs in a user and generates a JWT token.
+     *
+     * @param loginRequest The login credentials.
+     * @return A response containing the JWT token and user details.
+     */
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+            );
+
+            UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
+
+            String jwt = jwtUtil.generateToken(userDetails);
+
+            User user = userService.findByEmail(loginRequest.getEmail());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", jwt);
+            response.put("user", user);
+
+            return ResponseEntity.ok(response);
+        } catch (BadCredentialsException e) {
+            logger.warn("Invalid credentials: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        } catch (Exception e) {
+            logger.error("An error occurred during login", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        }
     }
 
     /**
@@ -182,6 +193,35 @@ public class UserController {
     }
 
     /**
+     * Checks if the user is logged in.
+     *
+     * @param request The HTTP request.
+     * @return A response indicating the login status.
+     */
+    @GetMapping("/status")
+    public ResponseEntity<String> checkStatus(HttpServletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+            return ResponseEntity.ok("User is logged in: " + authentication.getName());
+        } else {
+            return ResponseEntity.ok("User is not logged in");
+        }
+    }
+
+    /**
+     * Logs out the user by invalidating the session.
+     *
+     * @param session The HTTP session to invalidate.
+     * @return A response indicating logout success.
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok("Logged out successfully");
+    }
+
+    /**
      * Retrieves the profile of the currently logged-in user.
      *
      * @param request The HTTP request to get the current user details.
@@ -189,7 +229,6 @@ public class UserController {
      */
     @GetMapping("/profile")
     public ResponseEntity<User> getUserProfile(HttpServletRequest request) {
-        // Get the currently authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
             String email = authentication.getName();
@@ -209,13 +248,11 @@ public class UserController {
     @PutMapping("/profile")
     public ResponseEntity<String> updateUserProfile(HttpServletRequest request,
                                                     @RequestBody User updatedUser) {
-        // Get the currently authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
             String email = authentication.getName();
             User currentUser = userService.findByEmail(email);
             if (currentUser != null) {
-                // Update user details
                 currentUser.setName(updatedUser.getName());
                 currentUser.setEmail(updatedUser.getEmail()); // Consider if you want to allow email update
                 currentUser.setPassword(updatedUser.getPassword()); // Ensure proper password hashing
@@ -227,5 +264,4 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
-
 }
