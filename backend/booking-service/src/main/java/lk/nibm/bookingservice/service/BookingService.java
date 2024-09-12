@@ -1,25 +1,20 @@
 package lk.nibm.bookingservice.service;
 
-import lk.nibm.common.dto.EventDTO;
+//import lk.nibm.common.dto.EventDTO;
 import lk.nibm.bookingservice.model.Booking;
 import lk.nibm.bookingservice.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class BookingService {
@@ -30,13 +25,9 @@ public class BookingService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Autowired
-    private DiscoveryClient discoveryClient;
-
-    @Value("${event.service.name}")
-    private String eventServiceName;
-
-    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
+    // Define the base URL for the event-service
+    @Value("${event.service.url}")
+    private String eventServiceUrl;
 
     // -----------------------------------------------------------
     // Standard CRUD Methods
@@ -105,15 +96,11 @@ public class BookingService {
      * @param bookingRequest the booking request containing event and user details.
      * @return the saved booking.
      */
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public Booking bookTicket(Booking bookingRequest) {
         // Validate input to ensure that both eventId and userId are provided
         if (bookingRequest.getEventId() == 0 || bookingRequest.getUserId() == 0) {
             throw new IllegalArgumentException("Event ID and User ID must be provided");
         }
-
-        // Define the base URL for the event-service
-        String eventServiceUrl = "http://event-service/api/events/";
 
         try {
             // 1. Call the event-service to get available tickets
@@ -148,17 +135,19 @@ public class BookingService {
             bookingRequest.setTotalPrice(totalPrice.doubleValue());
 
             // 4. Save the booking information to the database
-            return bookingRepository.save(bookingRequest);
+            Booking savedBooking = bookingRepository.save(bookingRequest);
 
-        } catch (HttpClientErrorException e) {
-            log.error("Client error when calling event service: {}", e.getResponseBodyAsString(), e);
+            // 5. Call the event-service to reduce available tickets
+            restTemplate.postForEntity(
+                    String.format("%s/tickets/reduce?eventId=%d&ticketsToReduce=%d", eventServiceUrl, bookingRequest.getEventId(), bookingRequest.getTotalTickets()),
+                    null,
+                    Void.class
+            );
+
+            return savedBooking;
+
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
             throw new RuntimeException("Error communicating with event service: " + e.getMessage(), e);
-        } catch (HttpServerErrorException e) {
-            log.error("Server error from event service: {}", e.getResponseBodyAsString(), e);
-            throw new RuntimeException("Event service encountered an error: " + e.getMessage(), e);
-        } catch (Exception e) {
-            log.error("Unexpected error during booking: ", e);
-            throw new RuntimeException("An unexpected error occurred: " + e.getMessage(), e);
         }
     }
 

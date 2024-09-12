@@ -10,7 +10,7 @@
 
     <modules>
         <module>backend/common</module>
-        <module>backend/eureka-server</module>
+<!--        <module>backend/eureka-server</module>-->
         <module>backend/user-service</module>
         <module>backend/event-service</module>
         <module>backend/booking-service</module>

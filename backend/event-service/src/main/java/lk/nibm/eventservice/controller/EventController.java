@@ -43,7 +43,7 @@ public class EventController {
      * @return the event if found, 404 otherwise.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Event> findEventById(@PathVariable int id) {
+    public ResponseEntity<Event> findEventById(@PathVariable Long id) {
         Event event = eventService.getEventById(id);
         if (event == null) {
             return ResponseEntity.notFound().build();
@@ -73,7 +73,7 @@ public class EventController {
      * @return the updated event, or 404 if not found.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Event> updateEvent(@PathVariable int id, @RequestBody Event event) {
+    public ResponseEntity<Event> updateEvent(@PathVariable Long id, @RequestBody Event event) {
         Event updatedEvent = eventService.updateEvent(id, event);
         if (updatedEvent == null) {
             return ResponseEntity.notFound().build();
@@ -89,7 +89,7 @@ public class EventController {
      * @return 204 No Content if successful, 404 if not found.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEventById(@PathVariable int id) {
+    public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
         boolean deleted = eventService.deleteEventById(id);
         if (!deleted) {
             return ResponseEntity.notFound().build();
@@ -145,7 +145,7 @@ public class EventController {
      * @return the number of available tickets.
      */
     @GetMapping("/tickets/available/{id}")
-    public ResponseEntity<Integer> getAvailableTickets(@PathVariable int id) {
+    public ResponseEntity<Integer> getAvailableTickets(@PathVariable Long id) {
         int availableTickets = eventService.getAvailableTickets(id);
         return ResponseEntity.ok(availableTickets);
     }
@@ -159,7 +159,7 @@ public class EventController {
      */
     @PutMapping("/tickets/available/{id}")
     public ResponseEntity<Void> setAvailableTickets(
-            @PathVariable int id,
+            @PathVariable Long id,
             @RequestParam int availableTickets) {
         eventService.setAvailableTickets(id, availableTickets);
         return ResponseEntity.ok().build();
@@ -172,7 +172,7 @@ public class EventController {
      * @return the ticket price, or 404 if not found.
      */
     @GetMapping("/tickets/price/{id}")
-    public ResponseEntity<BigDecimal> getUnitPrice(@PathVariable int id) {
+    public ResponseEntity<BigDecimal> getUnitPrice(@PathVariable Long id) {
         BigDecimal unitPrice = eventService.getUnitPrice(id);
         if (unitPrice == null) {
             return ResponseEntity.notFound().build();
@@ -189,9 +189,19 @@ public class EventController {
      */
     @PutMapping("/tickets/price/{id}")
     public ResponseEntity<Void> setUnitPrice(
-            @PathVariable int id,
+            @PathVariable Long id,
             @RequestParam BigDecimal unitPrice) {
         eventService.setUnitPrice(id, unitPrice);
         return ResponseEntity.ok().build();
+    }
+
+    // Endpoint to reduce available tickets
+    @PostMapping("/tickets/reduce")
+    public ResponseEntity<Void> reduceAvailableTickets(@RequestParam("eventId") Long eventId, @RequestParam("ticketsToReduce") int ticketsToReduce) {
+        boolean success = eventService.reduceAvailableTickets(eventId, ticketsToReduce);
+        if (!success) {
+            return ResponseEntity.badRequest().build(); // Not enough tickets available or event not found
+        }
+        return ResponseEntity.ok().build(); // Tickets reduced successfully
     }
 }

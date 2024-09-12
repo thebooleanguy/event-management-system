@@ -42,7 +42,7 @@ public class EventService {
      * @param id the ID of the event.
      * @return the event if found, null otherwise.
      */
-    public Event getEventById(int id) {
+    public Event getEventById(Long id) {
         return eventRepository.findById(id).orElse(null);
     }
 
@@ -65,7 +65,7 @@ public class EventService {
      * @param event the updated event object.
      * @return the updated event if it exists, null otherwise.
      */
-    public Event updateEvent(int id, Event event) {
+    public Event updateEvent(Long id, Event event) {
         if (!eventRepository.existsById(id)) {
             return null; // Handle the case where the event does not exist
         }
@@ -80,7 +80,7 @@ public class EventService {
      * @param id the ID of the event to delete.
      * @return true if the event was deleted, false if it doesn't exist.
      */
-    public boolean deleteEventById(int id) {
+    public boolean deleteEventById(Long id) {
         if (!eventRepository.existsById(id)) {
             return false; // Handle the case where the event does not exist
         }
@@ -130,7 +130,7 @@ public class EventService {
      * @param eventId the ID of the event.
      * @return number of available tickets, or 0 if event is not found.
      */
-    public int getAvailableTickets(int eventId) {
+    public int getAvailableTickets(Long eventId) {
         Event event = eventRepository.findById(eventId).orElse(null);
         return (event != null) ? event.getAvailableTickets() : 0;
     }
@@ -141,7 +141,7 @@ public class EventService {
      * @param eventId the ID of the event.
      * @param availableTickets the number of available tickets to set.
      */
-    public void setAvailableTickets(int eventId, int availableTickets) {
+    public void setAvailableTickets(Long eventId, int availableTickets) {
         Event event = eventRepository.findById(eventId).orElse(null);
         if (event != null) {
             event.setAvailableTickets(availableTickets);
@@ -155,7 +155,7 @@ public class EventService {
      * @param eventId the ID of the event.
      * @return the ticket price, or null if event is not found.
      */
-    public BigDecimal getUnitPrice(int eventId) {
+    public BigDecimal getUnitPrice(Long eventId) {
         Event event = eventRepository.findById(eventId).orElse(null);
         return (event != null) ? event.getTicketPrice() : null;
     }
@@ -166,11 +166,32 @@ public class EventService {
      * @param eventId the ID of the event.
      * @param unitPrice the new ticket price to set.
      */
-    public void setUnitPrice(int eventId, BigDecimal unitPrice) {
+    public void setUnitPrice(Long eventId, BigDecimal unitPrice) {
         Event event = eventRepository.findById(eventId).orElse(null);
         if (event != null) {
             event.setTicketPrice(unitPrice);
             eventRepository.save(event);
         }
+    }
+
+    /**
+     * Reduce the available tickets for a specific event.
+     *
+     * @param eventId the ID of the event.
+     * @param ticketsToReduce the number of tickets to reduce.
+     * @return true if the tickets were reduced successfully, false otherwise.
+     */
+    public boolean reduceAvailableTickets(Long eventId, int ticketsToReduce) {
+        Optional<Event> eventOptional = eventRepository.findById(eventId);
+        if (eventOptional.isEmpty()) {
+            return false; // Event not found
+        }
+        Event event = eventOptional.get();
+        if (event.getAvailableTickets() < ticketsToReduce) {
+            return false; // Not enough tickets available
+        }
+        event.setAvailableTickets(event.getAvailableTickets() - ticketsToReduce);
+        eventRepository.save(event);
+        return true; // Tickets reduced successfully
     }
 }
