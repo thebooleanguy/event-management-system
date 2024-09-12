@@ -1,5 +1,6 @@
 package lk.nibm.bookingservice.service;
 
+import lk.nibm.common.dto.EventDTO;
 import lk.nibm.bookingservice.model.Booking;
 import lk.nibm.bookingservice.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -138,18 +136,5 @@ public class BookingService {
 
         // Save the booking information to the database
         return bookingRepository.save(bookingRequest);
-    }
-
-
-    // -----------------------------------------------------------
-    // Inner DTO Class
-    // -----------------------------------------------------------
-
-    @Data
-    @NoArgsConstructor
-    private static class EventDTO {
-        private int eventId;
-        private int availableTickets;
-        private BigDecimal price;
     }
 }
