@@ -67,7 +67,7 @@
 
 				<!-- My Tickets Button -->
 				<a
-					href="/tickets/my-tickets"
+					href="/bookings/my-bookings"
 					class="bg-[#1E40AF] hover:bg-[#1E3A8A] p-2 rounded-full flex items-center justify-center"
 				>
 					<FontAwesomeIcon icon={faTicketAlt} class="text-[#FFFFFF] text-lg" />

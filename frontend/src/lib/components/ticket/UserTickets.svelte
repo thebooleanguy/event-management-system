@@ -16,7 +16,7 @@
 			userId = await userService.getUserId();
 			userTickets = await ticketService.getTicketsByUser(userId);
 
-			// Fetch event titles for the tickets
+			// Fetch event titles for the bookings
 			userTickets = await Promise.all(
 				userTickets.map(async (ticket) => {
 					try {
@@ -29,7 +29,7 @@
 				})
 			);
 		} catch (err) {
-			error = 'Failed to fetch user tickets';
+			error = 'Failed to fetch user bookings';
 			console.error(err);
 		} finally {
 			isLoading = false;
@@ -56,7 +56,7 @@
 	{:else if error}
 		<p class="text-red-500">{error}</p>
 	{:else if userTickets.length === 0}
-		<p class="text-gray-600">No tickets found.</p>
+		<p class="text-gray-600">No bookings found.</p>
 	{:else}
 		<div class="space-y-4">
 			{#each userTickets as ticket (ticket.id)}

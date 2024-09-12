@@ -19,25 +19,30 @@ public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(nullable = false)
+    @Column(name = "date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
-    @Column(nullable = false)
+    @Column(name = "read_status", nullable = false)
     private Boolean readStatus;
 
     @PrePersist
     protected void onCreate() {
         if (this.date == null) {
             this.date = new Date(); // Set current date and time if not set
+        }
+
+        if (this.readStatus == null) {
+            this.readStatus = false;
         }
     }
 }

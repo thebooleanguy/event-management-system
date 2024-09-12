@@ -32,8 +32,6 @@ public class NotificationService {
      * @return the saved notification.
      */
     public Notification sendNotification(Notification notification) {
-        notification.setDate(new Date()); // Sets the current date
-        notification.setReadStatus(false); // Mark as unread by default
         return notificationRepository.save(notification); // Saves the new notification
     }
 

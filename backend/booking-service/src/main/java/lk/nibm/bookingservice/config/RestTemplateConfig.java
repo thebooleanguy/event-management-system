@@ -1,4 +1,4 @@
-package lk.nibm.ticketservice.config;
+package lk.nibm.bookingservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

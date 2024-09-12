@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Represents an event entity in the system.
+ */
 @Entity
 @Table(name = "events")
 @Getter
@@ -20,26 +23,26 @@ public class Event {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "date")
+    @Column(name = "event_date")
     private LocalDate date;
 
     @Column(name = "location")
     private String location;
 
-    @Column(name = "organizerId")
+    @Column(name = "organizer_id")
     private int organizerId;
 
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
     private EventCategory category;
 
-    @Column(name = "imageUrl")
+    @Column(name = "image_url")
     private String imageUrl;
 
     @Column(name = "available_tickets")
@@ -50,18 +53,23 @@ public class Event {
 
     @PrePersist
     public void setDefaults() {
+        // Set default image URL if not provided
         if (this.imageUrl == null || this.imageUrl.isEmpty()) {
             this.imageUrl = "/images/default.jpg";
         }
 
+        // Set default values for available tickets and ticket price
         if (availableTickets <= 0) {
-            this.availableTickets = 1; // Default to 1
+            this.availableTickets = 1; // Default to 1 if not set or set to a non-positive value
         }
         if (ticketPrice == null) {
-            this.ticketPrice = BigDecimal.ONE; // Default to 1
+            this.ticketPrice = BigDecimal.ONE; // Default to 1 if not set
         }
     }
 
+    /**
+     * Enumeration for event categories.
+     */
     public enum EventCategory {
         MUSIC,
         THEATER,

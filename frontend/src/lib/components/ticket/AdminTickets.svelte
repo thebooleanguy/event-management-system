@@ -13,7 +13,7 @@
 		try {
 			allTickets = await ticketService.getAllTickets();
 
-			// Fetch event titles for the tickets
+			// Fetch event titles for the bookings
 			allTickets = await Promise.all(
 				allTickets.map(async (ticket) => {
 					try {
@@ -26,7 +26,7 @@
 				})
 			);
 		} catch (err) {
-			error = 'Failed to fetch all tickets';
+			error = 'Failed to fetch all bookings';
 			console.error(err);
 		} finally {
 			isLoading = false;
@@ -53,7 +53,7 @@
 	{:else if error}
 		<p class="text-red-500">{error}</p>
 	{:else if allTickets.length === 0}
-		<p class="text-gray-600">No tickets found.</p>
+		<p class="text-gray-600">No bookings found.</p>
 	{:else}
 		<table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
 			<thead class="bg-gray-100">

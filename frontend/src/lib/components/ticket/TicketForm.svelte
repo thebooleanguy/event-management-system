@@ -21,9 +21,9 @@
 			userId = await userService.getUserId(); // Adjust this method as needed
 			console.log('Fetched user ID:', userId);
 
-			// Fetch available tickets and unit price when the component mounts
+			// Fetch available bookings and unit price when the component mounts
 			availableTickets = await ticketService.getAvailableTickets(eventId);
-			console.log('Available tickets:', availableTickets);
+			console.log('Available bookings:', availableTickets);
 
 			unitPrice = await ticketService.getUnitPrice(eventId);
 			console.log('Unit price:', unitPrice);
@@ -31,7 +31,7 @@
 			// Update total price based on the initial totalTickets value
 			updateTotalPrice();
 		} catch (err) {
-			error = 'Failed to fetch user information, available tickets, or unit price';
+			error = 'Failed to fetch user information, available bookings, or unit price';
 			console.error('Error fetching data:', err);
 		}
 	});
@@ -43,9 +43,9 @@
 	async function handleSubmit() {
 		isLoading = true;
 		try {
-			// Check if requested tickets exceed available tickets
+			// Check if requested bookings exceed available bookings
 			if (totalTickets > availableTickets) {
-				throw new Error('Not enough tickets available');
+				throw new Error('Not enough bookings available');
 			}
 
 			const ticketData = {

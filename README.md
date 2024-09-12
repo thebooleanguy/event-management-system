@@ -4,7 +4,7 @@
 
 ## Overview
 
-The Event Management System is a university project designed to demonstrate the use of microservices architecture using Spring Boot. The system enables users to browse, book, and manage tickets for various events like musical shows, concerts, and theater performances. Organizers can create and manage events, while the system tracks ticket sales and user interactions.
+The Event Management System is a university project designed to demonstrate the use of microservices architecture using Spring Boot. The system enables users to browse, book, and manage bookings for various events like musical shows, concerts, and theater performances. Organizers can create and manage events, while the system tracks ticket sales and user interactions.
 
 ## 🏗️ Microservices Architecture
 
@@ -12,7 +12,7 @@ The application is divided into the following microservices:
 
 1. **👤 User Service**: Handles user registration, authentication, and profile management.
 2. **🎫 Event Service**: Manages the creation, editing, and retrieval of events.
-3. **🛒 Ticket Service**: Manages the booking, cancellation, and retrieval of tickets.
+3. **🛒 Ticket Service**: Manages the booking, cancellation, and retrieval of bookings.
 4. **💳 Payment Service**: Processes payments and maintains payment history.
 5. **🔔 Notification Service**: Sends notifications to users about bookings, cancellations, and event updates.
 6. **📊 Analytics Service**: Tracks user interactions, ticket sales, and event metrics.
@@ -62,8 +62,8 @@ The application is divided into the following microservices:
   - RESTful endpoints: `/events`, `/events/{id}`.
   
 - **🛒 Ticket Service** (Port 8083):
-  - Booking, viewing, and cancellation of tickets.
-  - RESTful endpoints: `/tickets`, `/tickets/{id}`, `/tickets/user/{userId}`.
+  - Booking, viewing, and cancellation of bookings.
+  - RESTful endpoints: `/bookings`, `/bookings/{id}`, `/bookings/user/{userId}`.
   
 - **💳 Payment Service** (Port 8084):
   - Processes payments for ticket bookings.

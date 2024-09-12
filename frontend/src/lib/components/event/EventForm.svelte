@@ -40,7 +40,7 @@
 			}
 
 			// Redirect to TicketSettings with the event ID
-			goto(`/tickets/ticket-settings/${newEventId}`);
+			goto(`/bookings/ticket-settings/${newEventId}`);
 		} catch (err) {
 			error = 'Failed to save event';
 			console.error(err);

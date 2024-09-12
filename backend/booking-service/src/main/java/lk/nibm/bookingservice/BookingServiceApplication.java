@@ -1,13 +1,13 @@
-package lk.nibm.ticketservice;
+package lk.nibm.bookingservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TicketServiceApplication {
+public class BookingServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TicketServiceApplication.class, args);
+		SpringApplication.run(BookingServiceApplication.class, args);
 	}
 
 }

@@ -1,4 +1,4 @@
-package lk.nibm.ticketservice.model;
+package lk.nibm.bookingservice.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -9,11 +9,14 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * Represents a booking entity in the system.
+ */
 @Entity
-@Table(name = "tickets")
+@Table(name = "bookings")
 @Getter
 @Setter
-public class Ticket {
+public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +28,7 @@ public class Ticket {
     private int eventId;
 
     @Column(name = "payment_id")
-    private int paymentId;
+    private Integer paymentId;  // Integer allows null values
 
     @Column(name = "user_id", nullable = false)
     @NotNull
@@ -36,7 +39,7 @@ public class Ticket {
     @Min(1)
     private int totalTickets;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "total_price", nullable = false)
     @NotNull
     private double totalPrice;
 
@@ -44,7 +47,7 @@ public class Ticket {
     @NotNull
     private LocalDate bookingDate;
 
-    public Ticket() {
+    public Booking() {
         // Initialize bookingDate to the current date
         this.bookingDate = LocalDate.now();
     }

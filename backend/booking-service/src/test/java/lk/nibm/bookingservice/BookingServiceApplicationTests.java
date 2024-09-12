@@ -1,10 +1,10 @@
-package lk.nibm.ticketservice;
+package lk.nibm.bookingservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TicketServiceApplicationTests {
+class BookingServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

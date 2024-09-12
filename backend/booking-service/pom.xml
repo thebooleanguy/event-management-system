@@ -10,10 +10,10 @@
 		<relativePath>../../pom.xml</relativePath> <!-- Relative path to the parent POM -->
 	</parent>
 
-	<artifactId>ticket-service</artifactId>
+	<artifactId>booking-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ticket-service</name>
-	<description>Ticket Service for managing ticket booking, cancellation, and retrieval</description>
+	<name>booking-service</name>
+	<description>Booking Service for managing ticket booking, cancellation, and retrieval</description>
 
 	<properties>
 		<java.version>17</java.version>
