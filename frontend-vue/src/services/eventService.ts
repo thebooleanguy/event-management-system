@@ -1,13 +1,12 @@
+// eventService.ts
 import axios, {
     AxiosRequestConfig,
     InternalAxiosRequestConfig,
     AxiosHeaders,
 } from "axios";
 
-// Define API URL
-const EVENT_API_URL = "http://localhost:8082/api/events/"; // Base URL for event-related endpoints
+const EVENT_API_URL = "http://localhost:8082/api/events/";
 
-// Create an axios instance with default configurations
 const apiClient = axios.create({
     baseURL: EVENT_API_URL,
     headers: {
@@ -15,12 +14,10 @@ const apiClient = axios.create({
     },
 });
 
-// Add an interceptor to include the Authorization header
 apiClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
         const token = localStorage.getItem("token");
         if (token) {
-            // Ensure headers is defined and then add or overwrite the Authorization header
             config.headers = new AxiosHeaders({
                 ...config.headers,
                 Authorization: `Bearer ${token}`,
@@ -28,18 +25,14 @@ apiClient.interceptors.request.use(
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Define TypeScript types for event data
 interface EventData {
     title: string;
     description?: string;
     date?: string;
     location?: string;
-    // Add other event fields as needed
 }
 
 interface SearchParams {
@@ -48,51 +41,34 @@ interface SearchParams {
 }
 
 export const eventService = {
-    // Retrieve all events
     getAllEvents: () => apiClient.get("/all").then((response) => response.data),
-
-    // Retrieve an event by ID
-    getEventById: (id: string) =>
-        apiClient.get(`/${id}`).then((response) => response.data),
-
-    // Search for events by title and/or category
+    getEventById: (id: number) =>
+        apiClient.get(`/${id}`).then((response) => {
+            console.log("Response:", response);
+            console.log("Response data:", response.data);
+            return response.data;
+        }),
     searchEvents: (params: SearchParams) =>
         apiClient.get("/search", { params }).then((response) => response.data),
-
-    // Create a new event
-    createEvent: (eventData: EventData, organizerId: string) =>
+    createEvent: (eventData: EventData, organizerId: number) =>
         apiClient
             .post("/", { ...eventData, organizerId })
             .then((response) => response.data),
-
-    // Update an event by ID
-    updateEvent: (id: string, eventData: EventData) =>
+    updateEvent: (id: number, eventData: EventData) =>
         apiClient.put(`/${id}`, eventData).then((response) => response.data),
-
-    // Delete an event by ID
-    deleteEvent: (id: string) => apiClient.delete(`/${id}`),
-
-    // Retrieve all available event categories
+    deleteEvent: (id: number) => apiClient.delete(`/${id}`),
     getCategories: () =>
         apiClient.get("/categories").then((response) => response.data),
-
-    // Retrieve the number of available tickets for an event by ID
-    getAvailableTickets: (id: string) =>
+    getAvailableTickets: (id: number) =>
         apiClient
             .get(`/tickets/available/${id}`)
             .then((response) => response.data),
-
-    // Set the number of available tickets for an event by ID
-    setAvailableTickets: (id: string, availableTickets: number) =>
+    setAvailableTickets: (id: number, availableTickets: number) =>
         apiClient.put(`/tickets/available/${id}`, null, {
             params: { availableTickets },
         }),
-
-    // Retrieve the ticket price (unit price) for an event by ID
-    getUnitPrice: (id: string) =>
+    getUnitPrice: (id: number) =>
         apiClient.get(`/tickets/price/${id}`).then((response) => response.data),
-
-    // Set the ticket price (unit price) for an event by ID
-    setUnitPrice: (id: string, unitPrice: number) =>
+    setUnitPrice: (id: number, unitPrice: number) =>
         apiClient.put(`/tickets/price/${id}`, null, { params: { unitPrice } }),
 };

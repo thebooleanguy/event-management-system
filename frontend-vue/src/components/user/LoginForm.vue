@@ -40,7 +40,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { userService } from '@/services/userService'; // Adjust path as necessary
-import { userStore } from '@/stores/userStore'; // Adjust path as necessary
+import { useStore } from 'vuex'; // Import Vuex store
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
@@ -54,12 +54,13 @@ export default {
         const password = ref<string>('');
         const error = ref<string>('');
         const router = useRouter();
+        const store = useStore(); // Use Vuex store
 
         const handleSubmit = async () => {
             try {
                 const response = await userService.login(email.value, password.value);
                 if (response && response.token) {
-                    userStore.login(response.user);
+                    store.dispatch('login', response.user); // Dispatch the login action
                     localStorage.setItem('token', response.token);
                     router.push('/');
                 } else {

@@ -27,8 +27,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { notificationService } from '@/lib/services/notificationService';
-import { userService } from '@/lib/services/userService';
+import { notificationService } from '@/services/notificationService';
+import { userService } from '@/services/userService';
 
 interface Notification {
     id: string;

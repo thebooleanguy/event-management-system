@@ -1,7 +1,7 @@
 package lk.nibm.paymentservice.controller;
 
-import lk.nibm.common.dto.PaymentRequest;
-import lk.nibm.common.dto.PaymentResponse;
+//import lk.nibm.common.dto.PaymentRequest;
+//import lk.nibm.common.dto.PaymentResponse;
 import lk.nibm.paymentservice.model.Payment;
 import lk.nibm.paymentservice.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;

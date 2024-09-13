@@ -12,11 +12,11 @@
         </div>
 
         <div class="flex space-x-4 items-center">
-            <router-link to="/events/myEvents"
+            <router-link v-if="userProfile" to="/events/myEvents"
                 class="bg-yellow-300 text-gray-800 px-4 py-2 rounded-md hover:bg-yellow-400">
                 My Events
             </router-link>
-            <router-link to="/events/create"
+            <router-link v-if="userProfile" to="/events/create"
                 class="bg-yellow-300 text-gray-800 px-4 py-2 rounded-md hover:bg-yellow-400">
                 Create Event
             </router-link>
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineComponent } from 'vue';
 import SearchBar from '@/components/SearchBar.vue'; // Adjust path as necessary
 import { userService } from '@/services/userService'; // Adjust path as necessary
 
@@ -35,11 +35,12 @@ interface UserProfile {
     role: string;
 }
 
-export default {
+export default defineComponent({
     components: {
         SearchBar,
     },
-    setup() {
+    emits: ['search'], // Declare the search event
+    setup(_, { emit }) {
         const userProfile = ref<UserProfile | null>(null);
         const error = ref<string>('');
         const loading = ref<boolean>(true);
@@ -62,10 +63,8 @@ export default {
 
         onMounted(fetchUserProfile);
 
-        const handleSearch = (event: CustomEvent) => {
-            // Dispatch search event logic
-            const searchEvent = new CustomEvent('search', { detail: event.detail });
-            window.dispatchEvent(searchEvent);
+        const handleSearch = (filteredEvents: any[]) => {
+            emit('search', filteredEvents); // Emit the search event with filtered events
         };
 
         return {
@@ -75,7 +74,7 @@ export default {
             handleSearch,
         };
     },
-};
+});
 </script>
 
 <style scoped>

@@ -18,8 +18,7 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from 'vue';
-import { eventService } from '@/services/eventService'; // Adjust path as necessary
+import { defineComponent, PropType } from 'vue';
 
 interface Event {
     id: string;
@@ -30,28 +29,19 @@ interface Event {
     description: string;
 }
 
-export default {
+export default defineComponent({
     name: 'EventList',
-    setup() {
-        const events = ref<Event[]>([]);
-        const error = ref<string>('');
-
-        const fetchEvents = async () => {
-            try {
-                events.value = await eventService.getAllEvents();
-            } catch (err) {
-                error.value = 'Failed to load events';
-            }
-        };
-
-        onMounted(fetchEvents);
-
-        return {
-            events,
-            error,
-        };
+    props: {
+        events: {
+            type: Array as PropType<Event[]>,
+            required: true,
+        },
+        error: {
+            type: String,
+            default: '',
+        },
     },
-};
+});
 </script>
 
 <style scoped>

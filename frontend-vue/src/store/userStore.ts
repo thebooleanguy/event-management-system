@@ -1,41 +1,63 @@
-// store/userStore.ts
 import { createStore } from "vuex";
 
+interface User {
+    id: string;
+    email: string;
+    name?: string;
+    role?: string; // Add a role property to identify user roles
+}
+
 interface UserState {
-    user: any; // Define a proper type based on your user object structure
+    user: User | null; // user can be null if not logged in
+}
+
+enum MutationTypes {
+    LOGIN = "LOGIN",
+    LOGOUT = "LOGOUT",
+    UPDATE_USER = "UPDATE_USER",
 }
 
 const store = createStore<UserState>({
     state: {
         user: null,
     },
+
     mutations: {
-        LOGIN(state, user) {
+        [MutationTypes.LOGIN](state, user: User) {
             state.user = user;
         },
-        LOGOUT(state) {
+        [MutationTypes.LOGOUT](state) {
             state.user = null;
         },
-        UPDATE_USER(state, data) {
+        [MutationTypes.UPDATE_USER](state, data: Partial<User>) {
             if (state.user) {
                 state.user = { ...state.user, ...data };
             }
         },
     },
+
     actions: {
-        login({ commit }, user) {
-            commit("LOGIN", user);
+        async login({ commit }: { commit: Function }, user: User) {
+            commit(MutationTypes.LOGIN, user);
         },
-        logout({ commit }) {
-            commit("LOGOUT");
+        async logout({ commit }: { commit: Function }) {
+            commit(MutationTypes.LOGOUT);
         },
-        updateUser({ commit }, data) {
-            commit("UPDATE_USER", data);
+        async updateUser(
+            { commit }: { commit: Function },
+            data: Partial<User>
+        ) {
+            commit(MutationTypes.UPDATE_USER, data);
         },
     },
+
     getters: {
         getUser(state) {
             return state.user;
+        },
+        isAdmin(state) {
+            // Check if the user exists and if their role is 'ADMIN'
+            return state.user?.role === "ADMIN";
         },
     },
 });

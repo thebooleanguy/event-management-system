@@ -22,6 +22,14 @@
                         <font-awesome-icon :icon="faTicketAlt" class="text-[#FFFFFF] text-lg" />
                     </router-link>
 
+                    <!-- Admin Button -->
+                    <template v-if="isAdmin">
+                        <router-link to="/admin/users"
+                            class="bg-green-600 text-white p-2 rounded-full flex items-center justify-center hover:bg-green-700">
+                            <font-awesome-icon :icon="faCog" class="text-lg" />
+                        </router-link>
+                    </template>
+
                     <!-- Logout Button -->
                     <button @click="handleLogout"
                         class="bg-red-600 text-white p-2 rounded-full flex items-center justify-center hover:bg-red-700">
@@ -40,12 +48,12 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { userStore } from '@/stores/userStore'; // Adjust path as necessary
+import { useStore } from 'vuex'; // Use Vuex's useStore
 import { userService } from '@/services/userService'; // Adjust path as necessary
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faUser, faSignOutAlt, faSignInAlt, faBell, faTicketAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOutAlt, faSignInAlt, faBell, faTicketAlt, faCog } from '@fortawesome/free-solid-svg-icons';
 
 export default {
     name: 'Header',
@@ -53,30 +61,32 @@ export default {
         FontAwesomeIcon
     },
     setup() {
-        const isLoggedIn = ref<boolean>(false);
+        const store = useStore();
         const router = useRouter();
+
+        // Computed property to access the `isLoggedIn` and `isAdmin` states from Vuex store
+        const isLoggedIn = computed(() => !!store.getters.getUser);
+        const isAdmin = computed(() => store.getters.isAdmin);
 
         const checkLoginStatus = async () => {
             try {
                 const profile = await userService.getUserProfile();
                 if (profile) {
-                    userStore.login(profile); // Update store with user profile
-                    isLoggedIn.value = true;
+                    store.dispatch('login', profile); // Dispatch login action with user profile
                 } else {
-                    userStore.logout(); // Ensure the store reflects logout
-                    isLoggedIn.value = false;
+                    store.dispatch('logout'); // Dispatch logout action
                 }
             } catch (err) {
                 console.error('Error fetching user profile:', err);
-                userStore.logout(); // Ensure store is updated on error
-                isLoggedIn.value = false;
+                store.dispatch('logout'); // Dispatch logout action on error
             }
         };
 
         const handleLogout = async () => {
             try {
                 await userService.logout();
-                router.push('/'); // Redirect to login page after logout
+                store.dispatch('logout'); // Ensure the store reflects logout
+                window.location.reload(); // Refresh the page after logout
             } catch (err) {
                 console.error('Logout failed:', err);
             }
@@ -86,12 +96,14 @@ export default {
 
         return {
             isLoggedIn,
+            isAdmin,
             handleLogout,
             faUser,
             faSignOutAlt,
             faSignInAlt,
             faBell,
-            faTicketAlt
+            faTicketAlt,
+            faCog
         };
     }
 };

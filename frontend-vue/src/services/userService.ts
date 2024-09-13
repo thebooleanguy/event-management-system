@@ -49,6 +49,13 @@ interface LoginResponse {
     user: UserProfile;
 }
 
+interface User {
+    id: string;
+    email: string;
+    role: string; // Add role property
+    [key: string]: any; // Use this to cover additional user fields as needed
+}
+
 // Define the userService with TypeScript support
 export const userService = {
     // Login and store user data
@@ -160,6 +167,34 @@ export const userService = {
         } catch (error: any) {
             console.error("Delete failed:", error);
             throw error; // Re-throw to handle in the component
+        }
+    },
+
+    // Get all users
+    getAllUsers: async (): Promise<User[]> => {
+        try {
+            const response = await apiClient.get<User[]>("/all");
+            return response.data;
+        } catch (error: any) {
+            console.error("Failed to get all users:", error);
+            throw new Error(
+                `Failed to get all users! status: ${error.response?.status}, message: ${error.message}`
+            );
+        }
+    },
+
+    // Update user role
+    updateUserRole: async (email: string, newRole: string): Promise<any> => {
+        try {
+            const response = await apiClient.put("/update-role", null, {
+                params: { email, newRole },
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Failed to update user role:", error);
+            throw new Error(
+                `Failed to update user role! status: ${error.response?.status}, message: ${error.message}`
+            );
         }
     },
 };

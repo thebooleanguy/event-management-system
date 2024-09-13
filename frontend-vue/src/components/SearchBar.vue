@@ -20,25 +20,24 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { eventService } from '@/lib/services/eventService';
+import { eventService } from '@/services/eventService';
 
 export default defineComponent({
-    name: 'EventSearch',
+    name: 'SearchBar',
     emits: ['search'],
     setup(_, { emit }) {
         const searchQuery = ref<string>('');
         const selectedCategory = ref<string>('All');
         const categories = ref<string[]>([]);
 
-        // Utility function to convert category names to Title Case
         const toTitleCase = (str: string) => {
             return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
         };
 
         const fetchCategories = async () => {
             try {
-                categories.value = await eventService.getCategories(); // Fetch categories from backend
-                categories.value = ['All', ...categories.value]; // Add "All" option to the categories
+                categories.value = await eventService.getCategories();
+                categories.value = ['All', ...categories.value];
             } catch (err) {
                 console.error('Failed to fetch categories:', err);
             }
@@ -46,15 +45,19 @@ export default defineComponent({
 
         const handleSearch = async () => {
             try {
-                const filteredEvents = await eventService.searchEvents(searchQuery.value, selectedCategory.value);
-                emit('search', filteredEvents); // Emit 'search' event with filtered events
+                const params = {
+                    title: searchQuery.value,
+                    category: selectedCategory.value !== 'All' ? selectedCategory.value : undefined,
+                };
+                const filteredEvents = await eventService.searchEvents(params);
+                emit('search', filteredEvents);
             } catch (err) {
                 console.error('Failed to fetch events:', err);
             }
         };
 
         onMounted(() => {
-            fetchCategories(); // Fetch categories on mount
+            fetchCategories();
         });
 
         return {

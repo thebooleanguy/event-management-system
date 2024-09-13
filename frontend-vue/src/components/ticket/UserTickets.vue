@@ -49,21 +49,27 @@ export default defineComponent({
 
         async function fetchUserBookings() {
             try {
-                userId.value = await userService.getUserId();
-                userBookings.value = await bookingService.getUserBookings(userId.value);
+                const userIdValue = await userService.getUserId();
+                if (userIdValue !== null) {
+                    userId.value = userIdValue;
+                    userBookings.value = await bookingService.getBookingsByUser(Number(userIdValue));
 
-                // Fetch event titles for the bookings
-                userBookings.value = await Promise.all(
-                    userBookings.value.map(async (booking: any) => {
-                        try {
-                            const event = await eventService.getEventById(booking.eventId);
-                            return { ...booking, eventTitle: event.title };
-                        } catch (err) {
-                            console.error('Error fetching event:', err);
-                            return booking;
-                        }
-                    })
-                );
+                    // Fetch event titles for the bookings
+                    userBookings.value = await Promise.all(
+                        userBookings.value.map(async (booking: any) => {
+                            try {
+                                const event = await eventService.getEventById(booking.eventId);
+                                return { ...booking, eventTitle: event.title };
+                            } catch (err) {
+                                console.error('Error fetching event:', err);
+                                return booking;
+                            }
+                        })
+                    );
+                } else {
+                    // Handle the case when userIdValue is null
+                    // You can set an error message or perform any other necessary actions
+                }
             } catch (err) {
                 error.value = 'Failed to fetch user bookings';
                 console.error('Error fetching user bookings:', err);
@@ -72,7 +78,7 @@ export default defineComponent({
             }
         }
 
-        async function cancelBooking(bookingId: string) {
+        async function cancelBooking(bookingId: number) {
             try {
                 await bookingService.cancelBooking(bookingId);
                 userBookings.value = userBookings.value.filter((booking: any) => booking.id !== bookingId);

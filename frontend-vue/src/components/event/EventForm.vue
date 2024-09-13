@@ -71,8 +71,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { eventService } from '../services/eventService';
-import { userService } from '../services/userService';
+import { eventService } from '@/services/eventService';
+import { userService } from '@/services/userService';
 import { useRouter } from 'vue-router';
 
 // Define types for the event and category
@@ -86,6 +86,15 @@ interface Event {
     imageUrl?: string;
 }
 
+const defaultEvent: Event = {
+    title: '',
+    description: '',
+    date: '',
+    location: '',
+    category: 'OTHER',
+    imageUrl: '/images/default.jpg'
+};
+
 export default defineComponent({
     props: {
         initialEvent: {
@@ -94,7 +103,10 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const event = ref<Event>({ ...props.initialEvent });
+        const event = ref<Event>({
+            ...defaultEvent,
+            ...props.initialEvent
+        });
         const error = ref<string>('');
         const isLoading = ref<boolean>(false);
         const categories = ref<string[]>([]);
@@ -106,7 +118,7 @@ export default defineComponent({
             str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
         // Fetch current user ID
-        const getCurrentUserId = async (): Promise<number | null> => {
+        const getCurrentUserId = async (): Promise<string | null> => {
             try {
                 return await userService.getUserId();
             } catch (err) {
@@ -132,11 +144,12 @@ export default defineComponent({
                     await eventService.updateEvent(event.value.id, eventData);
                     newEventId = event.value.id;
                 } else {
-                    const createdEvent = await eventService.createEvent(eventData, organizerId);
+                    const createdEvent = await eventService.createEvent(eventData, Number(organizerId));
                     newEventId = createdEvent.id;
                 }
 
-                router.push(`/bookings/ticket-settings/${newEventId}`);
+                // router.push(`/bookings/ticket-settings/${newEventId}`);
+                router.push(`/`);
             } catch (err) {
                 error.value = 'Failed to save event';
                 console.error(err);

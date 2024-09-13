@@ -50,11 +50,12 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { bookingService } from '@/services/bookingService';
 import { userService } from '@/services/userService';
+import { eventService } from '@/services/eventService';
 
 export default defineComponent({
     props: {
         eventId: {
-            type: String,
+            type: Number,
             required: true
         },
         eventTitle: {
@@ -71,18 +72,17 @@ export default defineComponent({
 
         onMounted(async () => {
             try {
-                // Fetch user ID when the component mounts
-                userId.value = await userService.getUserId();
+                userId.value = await userService.getUserId() ?? '';
                 console.log('Fetched user ID:', userId.value);
 
-                // Fetch available tickets when the component mounts
-                // availableTickets.value = await bookingService.getAvailableTickets(props.eventId);
-                // console.log('Available tickets:', availableTickets.value);
+                availableTickets.value = await eventService.getAvailableTickets(props.eventId);
+                console.log('Available tickets:', availableTickets.value);
             } catch (err) {
                 error.value = 'Failed to fetch user information or available tickets';
                 console.error('Error fetching data:', err);
             }
         });
+
 
         async function handleSubmit() {
             isLoading.value = true;

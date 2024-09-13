@@ -38,7 +38,7 @@ import { eventService } from '@/services/eventService';
 export default defineComponent({
     props: {
         eventId: {
-            type: String,
+            type: Number,
             required: true
         }
     },

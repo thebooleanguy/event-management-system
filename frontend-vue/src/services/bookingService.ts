@@ -32,18 +32,26 @@ apiClient.interceptors.request.use(
     }
 );
 
+interface BookingDTO {
+    eventId: number;
+    userId: string; // Assuming userId is a string based on your form
+    totalTickets: number;
+    paymentMethod?: string;
+    totalPrice?: number; // Optional
+}
+
 export const bookingService = {
     getAllBookings: () =>
         apiClient.get("/all").then((response) => response.data),
 
-    getBookingById: (id: string) =>
+    getBookingById: (id: number) =>
         apiClient.get(`/${id}`).then((response) => response.data),
 
-    getBookingsByUser: (userId: string) =>
+    getBookingsByUser: (userId: number) =>
         apiClient.get(`/user/${userId}`).then((response) => response.data),
 
-    cancelBooking: (id: string) => apiClient.delete(`/${id}`),
+    cancelBooking: (id: number) => apiClient.delete(`/${id}`),
 
-    bookTicket: (bookingData: any) =>
-        apiClient.post("/", bookingData).then((response) => response.data),
+    bookTicket: (bookingData: BookingDTO) =>
+        apiClient.post("/book", bookingData).then((response) => response.data),
 };
