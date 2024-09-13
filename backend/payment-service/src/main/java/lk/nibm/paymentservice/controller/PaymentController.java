@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/payments")
+@RequestMapping("/api/payments/")
 public class PaymentController {
 
     @Autowired

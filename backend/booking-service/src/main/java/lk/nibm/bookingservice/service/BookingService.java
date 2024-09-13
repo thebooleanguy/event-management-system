@@ -2,6 +2,7 @@ package lk.nibm.bookingservice.service;
 
 //import lk.nibm.common.dto.EventDTO;
 import lk.nibm.bookingservice.dto.BookingDTO;
+import lk.nibm.bookingservice.dto.NotificationDTO;
 import lk.nibm.bookingservice.dto.PaymentRequestDTO;
 import lk.nibm.bookingservice.dto.PaymentResponseDTO;
 import lk.nibm.bookingservice.model.Booking;
@@ -40,6 +41,9 @@ public class BookingService {
 
     @Value("${payment.service.url}")
     private String paymentServiceUrl;
+
+    @Value("${notification.service.url}")
+    private String notificationServiceUrl;
 
     // -----------------------------------------------------------
     // Standard CRUD Methods
@@ -195,6 +199,22 @@ public class BookingService {
                 } else {
                     System.out.println("Payment ID is null");  // Debugging step
                 }
+            }
+
+            // 7. Send a notification after booking is successful
+            try {
+                NotificationDTO notification = new NotificationDTO();
+                notification.setUserId((long) bookingRequestDTO.getUserId());
+                notification.setContent("Your booking for event " + bookingRequestDTO.getEventId() + " was successful!");
+
+                restTemplate.postForEntity(
+                        String.format("%s/send", notificationServiceUrl),
+                        notification,
+                        Void.class
+                );
+            } catch (Exception e) {
+                // Handle notification failure, log it but don’t fail the booking
+                System.err.println("Failed to send notification: " + e.getMessage());
             }
 
             return savedBooking;
