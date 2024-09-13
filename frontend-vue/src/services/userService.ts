@@ -143,21 +143,6 @@ export const userService = {
         }
     },
 
-    // Update user name
-    updateUserName: async (email: string, newName: string): Promise<any> => {
-        try {
-            const response = await apiClient.put("/update-name", null, {
-                params: { email, newName },
-            });
-            return response.data;
-        } catch (error: any) {
-            console.error("Failed to update user name:", error);
-            throw new Error(
-                `Failed to update user name! status: ${error.response?.status}, message: ${error.message}`
-            );
-        }
-    },
-
     // Delete user account
     deleteUser: async (email: string): Promise<void> => {
         try {
@@ -183,7 +168,13 @@ export const userService = {
         }
     },
 
-    // Update user role
+    // Get user by email
+    getUserByEmail: async (email: string) => {
+        const response = await axios.get(`/api/users/email/${email}`);
+        return response.data;
+    },
+
+    // Update user role by email
     updateUserRole: async (email: string, newRole: string): Promise<any> => {
         try {
             const response = await apiClient.put("/update-role", null, {
@@ -194,6 +185,21 @@ export const userService = {
             console.error("Failed to update user role:", error);
             throw new Error(
                 `Failed to update user role! status: ${error.response?.status}, message: ${error.message}`
+            );
+        }
+    },
+
+    // Update user name by email
+    updateUserName: async (email: string, newName: string): Promise<any> => {
+        try {
+            const response = await apiClient.put("/update-name", null, {
+                params: { email, newName },
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Failed to update user name:", error);
+            throw new Error(
+                `Failed to update user name! status: ${error.response?.status}, message: ${error.message}`
             );
         }
     },

@@ -30,6 +30,17 @@
                 <input type="number" id="totalTickets" v-model.number="totalTickets" min="1" required
                     class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
+
+            <!-- Payment Method Dropdown -->
+            <div>
+                <label for="paymentMethod" class="block text-gray-700 font-semibold mb-1">Payment Method</label>
+                <select id="paymentMethod" v-model="paymentMethod"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value=null selected>Pay at Entrance</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="PayPal">PayPal</option>
+                </select>
+            </div>
         </div>
 
         <!-- Display Error Message if any -->
@@ -45,6 +56,7 @@
         </div>
     </form>
 </template>
+
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
@@ -67,6 +79,7 @@ export default defineComponent({
         const userId = ref<string>('');
         const totalTickets = ref<number>(1);
         const availableTickets = ref<number>(0); // Kept for future use
+        const paymentMethod = ref<string | null>(null); // Added payment method
         const error = ref<string>('');
         const isLoading = ref<boolean>(false);
 
@@ -83,14 +96,14 @@ export default defineComponent({
             }
         });
 
-
         async function handleSubmit() {
             isLoading.value = true;
             try {
                 const bookingData = {
                     eventId: props.eventId,
                     userId: userId.value,
-                    totalTickets: totalTickets.value
+                    totalTickets: totalTickets.value,
+                    paymentMethod: paymentMethod.value || undefined // Set to undefined if not selected
                 };
 
                 console.log('Submitting booking data:', bookingData);
@@ -111,6 +124,7 @@ export default defineComponent({
             userId,
             totalTickets,
             availableTickets,
+            paymentMethod,
             error,
             isLoading,
             handleSubmit
@@ -118,6 +132,7 @@ export default defineComponent({
     }
 });
 </script>
+
 
 <style scoped>
 /* Add any scoped styles if necessary */

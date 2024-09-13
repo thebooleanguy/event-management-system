@@ -22,6 +22,12 @@
                         <font-awesome-icon :icon="faTicketAlt" class="text-[#FFFFFF] text-lg" />
                     </router-link>
 
+                    <!-- My Tickets Button -->
+                    <router-link to="/payments/user-payments"
+                        class="bg-[#1E40AF] hover:bg-[#1E3A8A] p-2 rounded-full flex items-center justify-center">
+                        <font-awesome-icon :icon="faMoneyBillAlt" class="text-[#FFFFFF] text-lg" />
+                    </router-link>
+
                     <!-- Admin Button -->
                     <template v-if="isAdmin">
                         <router-link to="/admin/users"
@@ -53,7 +59,7 @@ import { useRouter } from 'vue-router';
 import { useStore } from 'vuex'; // Use Vuex's useStore
 import { userService } from '@/services/userService'; // Adjust path as necessary
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faUser, faSignOutAlt, faSignInAlt, faBell, faTicketAlt, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOutAlt, faSignInAlt, faBell, faTicketAlt, faCog, faMoneyBillAlt } from '@fortawesome/free-solid-svg-icons';
 
 export default {
     name: 'Header',
@@ -99,6 +105,7 @@ export default {
             isAdmin,
             handleLogout,
             faUser,
+            faMoneyBillAlt,
             faSignOutAlt,
             faSignInAlt,
             faBell,

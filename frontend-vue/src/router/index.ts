@@ -25,6 +25,8 @@ import UserProfile from "@/components/user/UserProfile.vue";
 import AdminUserManagement from "@/components/admin/AdminUserManagement.vue";
 import Unauthorized from "@/components/admin/Unauthorized.vue";
 
+import UserPayments from "@/components/payment/UserPayments.vue";
+
 import { userService } from "@/services/userService";
 
 // Define a route guard to check if the user has an ADMIN role
@@ -138,6 +140,12 @@ const routes: Array<RouteRecordRaw> = [
                 name: "Unauthorized",
                 component: Unauthorized,
                 meta: { title: "Unauthorized - ANYEVENT.LK" },
+            },
+
+            {
+                path: "/payments/user-payments",
+                name: "UserPayments",
+                component: UserPayments,
             },
         ],
     },

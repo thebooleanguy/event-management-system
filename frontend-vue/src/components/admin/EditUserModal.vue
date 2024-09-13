@@ -3,14 +3,13 @@
         <div class="bg-white p-4 rounded-lg shadow-lg w-80">
             <h2 class="text-xl font-semibold mb-4">Edit User</h2>
             <form @submit.prevent="updateUser">
+                <!-- Username Field -->
                 <div class="mb-4">
-                    <label for="name" class="block text-gray-700">Name:</label>
-                    <input v-model="form.name" type="text" id="name" class="border p-2 rounded-lg w-full" required />
+                    <label for="username" class="block text-gray-700">Username:</label>
+                    <input v-model="form.username" type="text" id="username" class="border p-2 rounded-lg w-full"
+                        required />
                 </div>
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700">Email:</label>
-                    <input v-model="form.email" type="email" id="email" class="border p-2 rounded-lg w-full" required />
-                </div>
+                <!-- Role Field -->
                 <div class="mb-4">
                     <label for="role" class="block text-gray-700">Role:</label>
                     <select v-model="form.role" id="role" class="border p-2 rounded-lg w-full" required>
@@ -18,6 +17,7 @@
                         <option value="ADMIN">Admin</option>
                     </select>
                 </div>
+                <!-- Action Buttons -->
                 <div class="flex justify-between">
                     <button type="submit"
                         class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Update</button>
@@ -30,33 +30,42 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { userService } from '@/services/userService';
 
+// Define props
 const props = defineProps({
-    user: Object
+    user: {
+        type: Object,
+        required: true
+    }
 });
 
+// Define emits
 const emit = defineEmits(['close', 'update']);
 
+// State for form data
 const form = ref({
-    name: props.user?.name || '', // Include name field
-    email: props.user?.email || '',
-    role: props.user?.role || ''
+    username: '',
+    role: ''
 });
 
-// Watch for prop changes to update form
-watch(() => props.user, (newUser) => {
-    form.value = {
-        name: newUser?.name || '',
-        email: newUser?.email || '',
-        role: newUser?.role || ''
-    };
+// Load user details based on props.user
+onMounted(() => {
+    form.value.username = props.user.name || '';
+    form.value.role = props.user.role || '';
 });
 
+// Update user details
 const updateUser = async () => {
     try {
-        await userService.updateUserProfile(form.value);
+        if (!form.value.username.trim()) {
+            console.error('Username cannot be empty');
+            return;
+        }
+        // Update the user details using email from props.user
+        await userService.updateUserName(props.user.email, form.value.username);
+        await userService.updateUserRole(props.user.email, form.value.role);
         emit('update');
         emit('close');
     } catch (error) {
