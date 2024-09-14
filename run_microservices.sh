@@ -41,7 +41,7 @@ sleep 3
 
 cd ../booking-service
 mvn spring-boot:run &
-ticket_service_pid=$!
+booking_service_pid=$!
 sleep 3
 
 # Uncomment and add additional microservices as needed
