@@ -5,7 +5,7 @@ cleanup() {
     echo "Stopping all microservices..."
     kill $user_service_pid
     kill $event_service_pid
-    kill $ticket_service_pid
+    kill $booking_service_pid
     # Uncomment and add additional microservices as needed
     kill $notification_service_pid
     kill $payment_service_pid
@@ -39,7 +39,7 @@ mvn spring-boot:run &
 event_service_pid=$!
 sleep 3
 
-cd ../ticket-service
+cd ../booking-service
 mvn spring-boot:run &
 ticket_service_pid=$!
 sleep 3
