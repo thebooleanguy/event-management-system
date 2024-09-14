@@ -16,7 +16,7 @@
         <module>backend/booking-service</module>
         <module>backend/payment-service</module>
         <module>backend/notification-service</module>
-        <module>backend/analytics-service</module>
+<!--        <module>backend/analytics-service</module>-->
     </modules>
 
     <dependencyManagement>
