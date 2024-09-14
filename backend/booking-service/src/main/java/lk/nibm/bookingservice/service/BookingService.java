@@ -205,7 +205,7 @@ public class BookingService {
             try {
                 NotificationDTO notification = new NotificationDTO();
                 notification.setUserId((long) bookingRequestDTO.getUserId());
-                notification.setContent("Your booking for event " + bookingRequestDTO.getEventId() + " was successful!");
+                notification.setContent("Your booking for Event " + bookingRequestDTO.getEventId() + " was successful!");
 
                 restTemplate.postForEntity(
                         String.format("%s/send", notificationServiceUrl),

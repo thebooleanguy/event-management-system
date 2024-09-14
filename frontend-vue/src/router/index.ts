@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import { RouteLocationNormalized } from "vue-router";
 import Layout from "@/components/layout/Layout.vue";
 import Home from "@/components/Home.vue";
-import Notifications from "@/components/Notifications.vue";
+import Notifications from "@/components/notification/Notifications.vue";
 
 // Import Booking Components
 import AdminTickets from "@/components/ticket/AdminTickets.vue";
@@ -28,6 +28,7 @@ import Unauthorized from "@/components/admin/Unauthorized.vue";
 import UserPayments from "@/components/payment/UserPayments.vue";
 
 import { userService } from "@/services/userService";
+import NotificationManager from "@/components/notification/NotificationManager.vue";
 
 // Define a route guard to check if the user has an ADMIN role
 const requireAdminRole = async (
@@ -135,6 +136,15 @@ const routes: Array<RouteRecordRaw> = [
                 beforeEnter: requireAdminRole, // Apply the route guard
                 meta: { title: "Admin User Management - ANYEVENT.LK" },
             },
+
+            {
+                path: "/admin/notifications",
+                name: "AdminNotificationManagement",
+                component: NotificationManager,
+                beforeEnter: requireAdminRole,
+                meta: { title: "Admin Notification Management - ANYEVENT.LK" },
+            },
+
             {
                 path: "/unauthorized",
                 name: "Unauthorized",

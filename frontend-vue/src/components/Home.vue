@@ -11,7 +11,7 @@
                 </div>
 
                 <div class="space-y-4">
-                    <Categories :categories="categories" />
+                    <Categories @search="handleCategorySearch" />
 
                     <div class="mt-8 flex justify-center space-x-4">
                         <SocialMediaIcons />
@@ -29,6 +29,11 @@ import EventList from '@/components/event/EventList.vue';
 import Categories from '@/components/Categories.vue';
 import SocialMediaIcons from '@/components/SocialMediaIcons.vue';
 import { eventService } from '@/services/eventService'; // Adjust the path to your event service
+
+interface SearchParams {
+    title?: string;
+    category?: string;
+}
 
 export default defineComponent({
     components: {
@@ -56,6 +61,19 @@ export default defineComponent({
             events.value = filteredEvents;
         };
 
+        // Function to handle category search results
+        const handleCategorySearch = async ({ category }: { category: string }) => {
+            try {
+                const params: SearchParams = {
+                    category: category !== 'All' ? category : '',
+                };
+                const filteredEvents = await eventService.searchEvents(params);
+                events.value = filteredEvents;
+            } catch (error) {
+                console.error('Error fetching events:', error);
+            }
+        };
+
         // Lifecycle hook to load events when the component is mounted
         onMounted(() => {
             loadEvents();
@@ -66,12 +84,11 @@ export default defineComponent({
             events,
             categories,
             handleSearch,
+            handleCategorySearch,
         };
     },
 });
-
 </script>
-
 
 <style scoped>
 /* Add any custom styling here */

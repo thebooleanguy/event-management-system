@@ -11,6 +11,30 @@
                         <option value="PayPal">PayPal</option>
                     </select>
                 </div>
+                <div v-if="paymentMethod === 'Credit Card'">
+                    <div class="mb-4">
+                        <label for="cardNumber" class="block text-gray-700">Card Number</label>
+                        <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456"
+                            class="w-full border border-gray-300 rounded px-3 py-2" disabled />
+                    </div>
+                    <div class="mb-4 flex justify-between">
+                        <div class="w-1/2 mr-2">
+                            <label for="expiryDate" class="block text-gray-700">Expiry Date</label>
+                            <input type="text" id="expiryDate" placeholder="MM/YY"
+                                class="w-full border border-gray-300 rounded px-3 py-2" disabled />
+                        </div>
+                        <div class="w-1/2">
+                            <label for="cvv" class="block text-gray-700">CVV</label>
+                            <input type="text" id="cvv" placeholder="123"
+                                class="w-full border border-gray-300 rounded px-3 py-2" disabled />
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="cardHolderName" class="block text-gray-700">Card Holder Name</label>
+                        <input type="text" id="cardHolderName" placeholder="John Doe"
+                            class="w-full border border-gray-300 rounded px-3 py-2" disabled />
+                    </div>
+                </div>
                 <div class="mb-4">
                     <label for="amount" class="block text-gray-700">Amount to Pay</label>
                     <input type="number" :value="amount" id="amount"
@@ -29,7 +53,6 @@
         </div>
     </div>
 </template>
-
 <script lang="ts">
 import { defineComponent, ref, PropType } from 'vue';
 import PaymentService from '@/services/paymentService';

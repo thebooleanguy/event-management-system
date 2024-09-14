@@ -40,7 +40,7 @@ export default {
         onMounted(fetchCategories);
 
         const filterByCategory = (category: string) => {
-            emit('search', { category });
+            emit('search', { category }); // Emit the search event with the category
         };
 
         return {

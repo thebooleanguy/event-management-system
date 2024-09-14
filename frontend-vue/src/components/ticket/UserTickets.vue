@@ -49,6 +49,7 @@ import { eventService } from '@/services/eventService';
 import { userService } from '@/services/userService';
 import { faTrashAlt, faCashRegister } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import Swal from 'sweetalert2';
 
 export default defineComponent({
     components: {
@@ -96,9 +97,23 @@ export default defineComponent({
 
         async function cancelBooking(bookingId: number) {
             try {
-                await bookingService.cancelBooking(bookingId);
-                userBookings.value = userBookings.value.filter((booking: any) => booking.id !== bookingId);
-                alert('Booking canceled successfully!');
+                const result = await Swal.fire({
+                    icon: 'warning',
+                    title: 'Cancel Booking?',
+                    text: 'Are you sure you want to cancel this booking?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, cancel it!',
+                    cancelButtonText: 'No, keep it',
+                });
+                if (result.isConfirmed) {
+                    await bookingService.cancelBooking(bookingId);
+                    userBookings.value = userBookings.value.filter((booking: any) => booking.id !== bookingId);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Booking Canceled!',
+                        text: 'Your booking has been successfully canceled.',
+                    });
+                }
             } catch (err) {
                 error.value = 'Failed to cancel booking';
                 console.error('Error canceling booking:', err);
