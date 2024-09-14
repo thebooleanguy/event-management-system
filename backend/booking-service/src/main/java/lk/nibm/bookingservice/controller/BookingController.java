@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/bookings/")
+@RequestMapping
 public class BookingController {
 
     @Autowired
@@ -27,7 +27,7 @@ public class BookingController {
      *
      * @return list of all bookings.
      */
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingService.getAllBookings();
         return ResponseEntity.ok(bookings);
@@ -39,7 +39,7 @@ public class BookingController {
      * @param id the ID of the booking to retrieve.
      * @return the booking if found, 404 Not Found otherwise.
      */
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<Booking> getBookingById(@PathVariable int id) {
         Optional<Booking> booking = bookingService.getBookingById(id);
         return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -52,7 +52,7 @@ public class BookingController {
      * @param updatedBooking the booking object with updated data.
      * @return the updated booking if found and updated, 404 Not Found otherwise.
      */
-    @PutMapping("/{id}")
+    @PutMapping("/id/{id}")
     public ResponseEntity<Booking> updateBooking(@PathVariable int id, @RequestBody Booking updatedBooking) {
         Optional<Booking> booking = bookingService.updateBooking(id, updatedBooking);
         return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -64,7 +64,7 @@ public class BookingController {
      * @param id the ID of the booking to delete.
      * @return 204 No Content if deleted, 404 Not Found if not found.
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/id/{id}")
     public ResponseEntity<Void> deleteBooking(@PathVariable int id) {
         if (bookingService.getBookingById(id).isPresent()) {
             bookingService.cancelBooking(id);
@@ -84,7 +84,7 @@ public class BookingController {
      * @param userId the ID of the user whose bookings to retrieve.
      * @return list of bookings for the specified user.
      */
-    @GetMapping("/user/{userId}")
+    @GetMapping("/userid/{userId}")
     public ResponseEntity<List<Booking>> getBookingsByUser(@PathVariable int userId) {
         List<Booking> bookings = bookingService.getBookingsByUser(userId);
         return ResponseEntity.ok(bookings);
@@ -96,7 +96,7 @@ public class BookingController {
      * @param bookingRequestDTO the booking request containing event, user, and optional payment details.
      * @return the saved booking or a detailed error message if validation fails.
      */
-    @PostMapping("/book")
+    @PostMapping
     public ResponseEntity<?> bookTicket(@RequestBody BookingDTO bookingRequestDTO) {
         try {
             // 1. Validate the DTO if necessary (e.g., using annotations or custom checks)

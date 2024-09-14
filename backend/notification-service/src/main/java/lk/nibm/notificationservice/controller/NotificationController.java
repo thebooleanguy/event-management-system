@@ -3,10 +3,10 @@ package lk.nibm.notificationservice.controller;
 import lk.nibm.notificationservice.model.Notification;
 import lk.nibm.notificationservice.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing notifications.
@@ -34,9 +34,8 @@ public class NotificationController {
      * @return the saved notification.
      */
     @PostMapping("/send")
-    public ResponseEntity<Notification> sendNotification(@RequestBody Notification notification) {
-        Notification savedNotification = notificationService.sendNotification(notification);
-        return ResponseEntity.ok(savedNotification);
+    public Notification sendNotification(@RequestBody Notification notification) {
+        return notificationService.sendNotification(notification);
     }
 
     /**
@@ -47,13 +46,8 @@ public class NotificationController {
      * @return the notification object if found, 404 otherwise.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
-        Notification notification = notificationService.getNotificationById(id);
-        if (notification != null) {
-            return ResponseEntity.ok(notification);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Optional<Notification> getNotificationById(@PathVariable Long id) {
+        return Optional.ofNullable(notificationService.getNotificationById(id));
     }
 
     /**
@@ -63,9 +57,8 @@ public class NotificationController {
      * @return list of all notifications.
      */
     @GetMapping("/all")
-    public ResponseEntity<List<Notification>> findAllNotifications() {
-        List<Notification> notifications = notificationService.findAllNotifications();
-        return ResponseEntity.ok(notifications);
+    public List<Notification> findAllNotifications() {
+        return notificationService.findAllNotifications();
     }
 
     /**
@@ -77,13 +70,8 @@ public class NotificationController {
      * @return the updated notification if found, 404 otherwise.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Notification> updateNotification(@PathVariable Long id, @RequestBody Notification notification) {
-        Notification updatedNotification = notificationService.updateNotification(id, notification);
-        if (updatedNotification != null) {
-            return ResponseEntity.ok(updatedNotification);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Optional<Notification> updateNotification(@PathVariable Long id, @RequestBody Notification notification) {
+        return Optional.ofNullable(notificationService.updateNotification(id, notification));
     }
 
     /**
@@ -94,13 +82,8 @@ public class NotificationController {
      * @return 200 OK if deleted, 404 if not found.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
-        boolean deleted = notificationService.deleteNotification(id);
-        if (deleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public boolean deleteNotification(@PathVariable Long id) {
+        return notificationService.deleteNotification(id);
     }
 
     // -----------------------------------------------------------
@@ -114,9 +97,8 @@ public class NotificationController {
      * @return list of notifications for the user.
      */
     @GetMapping("/user")
-    public ResponseEntity<List<Notification>> getNotificationsForUser(@RequestParam Long userId) {
-        List<Notification> notifications = notificationService.getNotificationsForUser(userId);
-        return ResponseEntity.ok(notifications);
+    public List<Notification> getNotificationsForUser(@RequestParam Long userId) {
+        return notificationService.getNotificationsForUser(userId);
     }
 
     /**
@@ -126,13 +108,8 @@ public class NotificationController {
      * @return the updated notification if found, 404 otherwise.
      */
     @PatchMapping("/{id}/read")
-    public ResponseEntity<Notification> markNotificationAsRead(@PathVariable Long id) {
-        Notification updatedNotification = notificationService.markNotificationAsRead(id);
-        if (updatedNotification != null) {
-            return ResponseEntity.ok(updatedNotification);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Optional<Notification> markNotificationAsRead(@PathVariable Long id) {
+        return Optional.ofNullable(notificationService.markNotificationAsRead(id));
     }
 
     /**
@@ -142,13 +119,8 @@ public class NotificationController {
      * @return the updated notification if found, 404 otherwise.
      */
     @PatchMapping("/{id}/unread")
-    public ResponseEntity<Notification> markNotificationAsUnread(@PathVariable Long id) {
-        Notification updatedNotification = notificationService.markNotificationAsUnread(id);
-        if (updatedNotification != null) {
-            return ResponseEntity.ok(updatedNotification);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Optional<Notification> markNotificationAsUnread(@PathVariable Long id) {
+        return Optional.ofNullable(notificationService.markNotificationAsUnread(id));
     }
 
     /**
@@ -158,8 +130,7 @@ public class NotificationController {
      * @return 200 OK response if deletion is successful.
      */
     @DeleteMapping("/user/{userId}/deleteAll")
-    public ResponseEntity<Void> deleteAllNotificationsForUser(@PathVariable Long userId) {
+    public void deleteAllNotificationsForUser(@PathVariable Long userId) {
         notificationService.deleteAllNotificationsForUser(userId);
-        return ResponseEntity.ok().build();
     }
 }

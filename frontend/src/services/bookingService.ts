@@ -4,7 +4,7 @@ import axios, {
     AxiosHeaders,
 } from "axios";
 
-const BOOKING_API_URL = "http://localhost:8083/api/bookings/"; // Base URL for booking-related endpoints
+const BOOKING_API_URL = "http://localhost:8083/api/bookings"; // Base URL for booking-related endpoints
 
 // Create an axios instance with default configurations
 const apiClient = axios.create({
@@ -41,17 +41,16 @@ interface BookingDTO {
 }
 
 export const bookingService = {
-    getAllBookings: () =>
-        apiClient.get("/all").then((response) => response.data),
+    getAllBookings: () => apiClient.get("").then((response) => response.data),
 
     getBookingById: (id: number) =>
-        apiClient.get(`/${id}`).then((response) => response.data),
+        apiClient.get(`/id/${id}`).then((response) => response.data),
 
     getBookingsByUser: (userId: number) =>
-        apiClient.get(`/user/${userId}`).then((response) => response.data),
+        apiClient.get(`/userid/${userId}`).then((response) => response.data),
 
-    cancelBooking: (id: number) => apiClient.delete(`/${id}`),
+    cancelBooking: (id: number) => apiClient.delete(`/id/${id}`),
 
     bookTicket: (bookingData: BookingDTO) =>
-        apiClient.post("/book", bookingData).then((response) => response.data),
+        apiClient.post("", bookingData).then((response) => response.data),
 };
